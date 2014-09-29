@@ -1,0 +1,20 @@
+Python program:
+    klasse til at hente youtube kommentarer
+    klasse til at logge ind youtube
+    klasse til at lave sentiment analysis
+Database:
+    gemme youtube-id
+    gemme kommentarer
+    gemme resultat af sentiment analysis
+Webservice:
+    brugergrænseflade med sentiment analysis
+    grafer/grafik
+    søge på youtube URL/eller id
+    integration med youtube så man kan søge på videoer på siden, se video og knap til sentiment analysis
+Greasemonkey script/Chrome plugin:
+
+Yderligere ting:
+    PEP8 checkning
+    Tests og code coverage med Pytest
+    Documentation/Docstrings
+
