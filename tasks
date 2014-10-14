@@ -1,6 +1,5 @@
 Python program:
     klasse til at hente youtube kommentarer
-    klasse til at logge ind youtube
     klasse til at lave sentiment analysis
 Database:
     gemme youtube-id
@@ -18,3 +17,5 @@ Yderligere ting:
     Tests og code coverage med Pytest
     Documentation/Docstrings
 
+
+Vi vælger en database med ACID properties, da vi vil have garanteret atomicitet.
