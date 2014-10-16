@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import requests
 import json
+import persister
 
 class YouTubeFetcher:
     def __init__(self, video_id):
@@ -29,7 +30,9 @@ class YouTubeFetcher:
                 content = comment["content"]["$t"]
                 comment = {"author_name": author_name,
                            "author_id": author_id,
-                           "content": content}
+                           "content": content,
+                           "video_id": self.video_id,
+                           "id": comment["id"]["$t"]}
                 comments.append(comment)
             next_url = [e["href"] for e in r["feed"]["link"] if e["rel"] == "next"]
             if next_url:
@@ -43,8 +46,6 @@ class YouTubeFetcher:
             try:
                 comments += next(f)
             except StopIteration:
-                print(len(comments))
-                print(comments[0])
                 return comments
 
     def fetch_videoinfo(self):
@@ -77,5 +78,7 @@ class YouTubeFetcher:
 
 if __name__ == '__main__':
     c = YouTubeFetcher("OjBPIfpnd_g")
-    print(c.fetch_videoinfo())
-    #c.fetch_comments()
+    p = persister.Persister("project.db")
+    p.save_video(c.fetch_videoinfo())
+    for comment in c.fetch_comments():
+      p.save_comment(comment)
