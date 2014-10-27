@@ -19,6 +19,7 @@ def about():
 @app.route("/video")
 def video():
     video_id = flask.request.args.get("video_id")
+    # if in the form of an url, extract id
     if "youtube" in video_id:
         url = urllib.parse.urlparse(video_id)
         query = dict(urllib.parse.parse_qsl(url[4]))
@@ -28,6 +29,10 @@ def video():
 @app.errorhandler(404)
 def not_found(error):
     return flask.render_template("error.html", error=error)
+
+@app.route("/previous")
+def previous():
+    return flask.render_template("previous.html")
 
 @app.route('/plot.png')
 def plot():
