@@ -10,17 +10,16 @@ class YouTubeFetcher:
         self.comment_url = "https://gdata.youtube.com/feeds/api/videos/{0}/comments".format(self.video_id)
         self.video_url = "https://gdata.youtube.com/feeds/api/videos/{0}".format(self.video_id)
 
-    def _make_request(self, url, para):
-        f = requests.get(url, params=para)
-        return f.json()
-
     def _comment_generator(self):
+        """a generator for fetching one "page" of youtube comments
+        for a youtube video, it returns a list of comment dictionaries
+        with keys: author_name, author_id, content, video_id, id, published """
         next_url = self.comment_url
         params = {"v": 2, "alt": "json", "max-results": 50, "orderby": "published"}
 
         while(True):
             if next_url:
-                r = self._make_request(next_url, params)
+                r = requests.get(url, params=params).json()
             else:
                 raise StopIteration
             comments = []
@@ -43,6 +42,8 @@ class YouTubeFetcher:
             yield comments
 
     def fetch_comments(self):
+        """fetches all youtube comments
+        by using the _comment_generator function"""
         comments = []
         f = self._comment_generator()
         while(True):
@@ -52,8 +53,10 @@ class YouTubeFetcher:
                 return comments
 
     def fetch_videoinfo(self):
+      """fetches relevant information about the video
+      from the gdata youtube API"""
       params = {"v": 2, "alt": "json"}
-      r = self._make_request(self.video_url, params)
+      r = requests.get(self.video_url, params=params).json()
 
       title = r["entry"]["title"]["$t"]
       author_id = r["entry"]["author"][0]["yt$userId"]["$t"]
