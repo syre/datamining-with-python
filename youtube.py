@@ -28,11 +28,14 @@ class YouTubeFetcher:
                 author_name = comment["author"][0]["name"]["$t"]
                 author_id = comment["author"][0]["yt$userId"]["$t"]
                 content = comment["content"]["$t"]
+                comment_id = comment["id"]["$t"]
+                published = comment["published"]["$t"]
                 comment = {"author_name": author_name,
                            "author_id": author_id,
                            "content": content,
                            "video_id": self.video_id,
-                           "id": comment["id"]["$t"]}
+                           "id": comment_id,
+                           "published": published}
                 comments.append(comment)
             next_url = [e["href"] for e in r["feed"]["link"] if e["rel"] == "next"]
             if next_url:

@@ -8,6 +8,7 @@ CREATE TABLE comments(
   author_id TEXT NOT NULL,
   author_name TEXT NOT NULL,
   content TEXT NOT NULL,
+  published TEXT NOT NULL,
   FOREIGN KEY(video_id) REFERENCES videos(id)
 );
 

@@ -10,15 +10,30 @@ class Persister:
   def __del__(self):
     self.connection.close()
 
+  def get_video_comments(self, id):
+      c = self.connection.cursor()
+      c.execute("SELECT * FROM comments WHERE video_id=?",id)
+      return c.fetchall()
+
+  def is_existing_video(self, id):
+      c = self.connection.cursor()
+      c.execute("SELECT * FROM videos where id=?",id)
+      if c.fetchone():
+          return True
+      return False
+
+
   def save_comment(self, comment):
     c = self.connection.cursor()
     insertion = (comment["id"],
                  comment["video_id"],
                  comment["author_id"],
                  comment["author_name"],
-                 comment["content"])
-    c.execute("INSERT INTO comments VALUES (?, ?, ?, ?, ?)",insertion)
+                 comment["content"],
+                 comment["published"])
+    c.execute("INSERT INTO comments VALUES (?, ?, ?, ?, ?, ?)",insertion)
     self.connection.commit()
+
   def save_video(self, video):
     c = self.connection.cursor()
     insertion = (video["id"],
