@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  {% include "head.html" %}
+</head>
+<body>
+  <div id="container">
+  <header>
+    <h1>something something <span class="dual-red">YouTube</span> something something <span class="dual-blue">Sentiment Analysis</span></h1>
+  </header>
+  <section>
+    <hr>
+    {% include "navbar.html" %}
+    <hr>
+  </section>
+  <section id="content">
+  {% block content %}
+  {% endblock %}
+  </section>
+  <footer>
+    {% include "footer.html" %}
+  </footer>
+</div>
+</body>
+</html>
