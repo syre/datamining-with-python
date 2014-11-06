@@ -1,8 +1,0 @@
-{% extends "layout.html" %}
-{% block content %}
-<p><b>Analysis of video with ID: {{video_id}}</b></p>
-<object id="ytplayer" data="http://www.youtube.com/embed/{{video_id}}"
-   width="640" height="390"></object>
-
-<img src="plot.png" alt="plot">
-{% endblock %}
