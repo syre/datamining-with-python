@@ -8,7 +8,7 @@ class YouTubeScraper:
         self.comment_url = "https://gdata.youtube.com/feeds/api/videos/{0}/comments"
         self.video_url = "https://gdata.youtube.com/feeds/api/videos/{0}"
 
-    def _comment_generator(self, video_id):
+    def __comment_generator(self, video_id):
         """
         a generator for fetching one "page" of youtube comments
         for a youtube video, it returns a list of comment dictionaries
@@ -55,7 +55,7 @@ class YouTubeScraper:
 
         """
         comments = []
-        f = self._comment_generator(video_id)
+        f = self.__comment_generator(video_id)
         while(True):
             try:
                 comments += next(f)
