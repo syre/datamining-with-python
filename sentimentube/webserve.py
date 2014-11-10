@@ -8,8 +8,9 @@ import io
 import urllib
 import urllib.parse
 
-import youtube
-import persister
+import sentimentube
+import sentimentube.youtube
+import sentimentube.persister
 app = flask.Flask(__name__)
 
 @app.route("/")

@@ -10,10 +10,11 @@ class YouTubeScraper:
 
     def __comment_generator(self, video_id):
         """
-        a generator for fetching one "page" of youtube comments
+        A generator for fetching one "page" of youtube comments
         for a youtube video, it returns a list of comment dictionaries
         with keys: author_name, author_id, content, video_id, id, published
-
+        It should not be used directly, it is private and the fetch_comments
+        method should be used instead
         Parameters:
         - video_id : the id of the youtube video
         """
