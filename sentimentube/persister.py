@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sqlite3
 import os
+
 class Persister:
   def __init__(self,file):
     path = os.path.join(os.path.dirname(__file__),file)

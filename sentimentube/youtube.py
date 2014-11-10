@@ -2,24 +2,27 @@
 # -*- coding: utf-8 -*-
 import requests
 import json
-import persister
 
-class YouTubeFetcher:
-    def __init__(self, video_id):
-        self.video_id = video_id
-        self.comment_url = "https://gdata.youtube.com/feeds/api/videos/{0}/comments".format(self.video_id)
-        self.video_url = "https://gdata.youtube.com/feeds/api/videos/{0}".format(self.video_id)
+class YouTubeScraper:
+    def __init__(self):
+        self.comment_url = "https://gdata.youtube.com/feeds/api/videos/{0}/comments"
+        self.video_url = "https://gdata.youtube.com/feeds/api/videos/{0}"
 
-    def _comment_generator(self):
-        """a generator for fetching one "page" of youtube comments
+    def _comment_generator(self, video_id):
+        """
+        a generator for fetching one "page" of youtube comments
         for a youtube video, it returns a list of comment dictionaries
-        with keys: author_name, author_id, content, video_id, id, published """
-        next_url = self.comment_url
+        with keys: author_name, author_id, content, video_id, id, published
+
+        Parameters:
+        - video_id : the id of the youtube video
+        """
+        next_url = self.comment_url.format(video_id)
         params = {"v": 2, "alt": "json", "max-results": 50, "orderby": "published"}
 
         while(True):
             if next_url:
-                r = requests.get(url, params=params).json()
+                r = requests.get(next_url, params=params).json()
             else:
                 raise StopIteration
             comments = []
@@ -32,7 +35,7 @@ class YouTubeFetcher:
                 comment = {"author_name": author_name,
                            "author_id": author_id,
                            "content": content,
-                           "video_id": self.video_id,
+                           "video_id": video_id,
                            "id": comment_id,
                            "published": published}
                 comments.append(comment)
@@ -41,22 +44,36 @@ class YouTubeFetcher:
                 next_url = next_url[0]
             yield comments
 
-    def fetch_comments(self):
-        """fetches all youtube comments
-        by using the _comment_generator function"""
+    def fetch_comments(self, video_id, number=0):
+        """
+        fetches a number of youtube comments
+        by using the _comment_generator function
+
+        Parameters:
+        - number : the number of comments to fetch (0 = all comments)
+        - video_id : the id of the youtube video
+
+        """
         comments = []
-        f = self._comment_generator()
+        f = self._comment_generator(video_id)
         while(True):
             try:
                 comments += next(f)
+                if len(comments) > number and number > 0:
+                    return comments[:number]
             except StopIteration:
                 return comments
 
-    def fetch_videoinfo(self):
-      """fetches relevant information about the video
-      from the gdata youtube API"""
+    def fetch_videoinfo(self, video_id):
+      """
+      fetches relevant information about the video
+      from the gdata youtube API
+
+      Parameters:
+      - video_id : the id of the youtube video
+      """
       params = {"v": 2, "alt": "json"}
-      r = requests.get(self.video_url, params=params).json()
+      r = requests.get(self.video_url.format(video_id), params=params).json()
 
       title = r["entry"]["title"]["$t"]
       author_id = r["entry"]["author"][0]["yt$userId"]["$t"]
@@ -68,7 +85,7 @@ class YouTubeFetcher:
       numraters = r["entry"]["gd$rating"]["numRaters"]
       likes = r["entry"]["yt$rating"]["numLikes"]
       dislikes = r["entry"]["yt$rating"]["numDislikes"]
-      video_info = {"id" : self.video_id,
+      video_info = {"id" : video_id,
                     "title": title,
                     "author_id": author_id,
                     "category": category,
@@ -83,8 +100,5 @@ class YouTubeFetcher:
 
 
 if __name__ == '__main__':
-    c = YouTubeFetcher("OjBPIfpnd_g")
-    p = persister.Persister("project.db")
-    p.save_video(c.fetch_videoinfo())
-    for comment in c.fetch_comments():
-      p.save_comment(comment)
+    c = YouTubeScraper()
+    print(c.fetch_comments("dQw4w9WgXcQ",20))
