@@ -5,15 +5,15 @@ from unittest import mock
 import sentimentube
 import sentimentube.youtube
 
-@mock.patch("sentimentube.youtube.YouTubeScraper._YouTubeScraper__comment_generator")
+@mock.patch("sentimentube.youtube.YouTubeScraper._comment_generator")
 def test_fetch_comments_calls_with_correct_id(mock_fn):
     y = sentimentube.youtube.YouTubeScraper()
     # return dummy list
     mock_fn.return_value = iter([[str(x) for x in range(100)]])
     y.fetch_comments("dQw4w9WgXcQ", 50)
-    y._YouTubeScraper__comment_generator.assert_called_with("dQw4w9WgXcQ")
+    y._comment_generator.assert_called_with("dQw4w9WgXcQ")
 
-@mock.patch("sentimentube.youtube.YouTubeScraper._YouTubeScraper__comment_generator")
+@mock.patch("sentimentube.youtube.YouTubeScraper._comment_generator")
 def test_fetch_comments_returns_correct_number_over_zero(mock_fn):
     y = sentimentube.youtube.YouTubeScraper()
     # return dummy list
@@ -21,34 +21,10 @@ def test_fetch_comments_returns_correct_number_over_zero(mock_fn):
     comments = y.fetch_comments("dQw4w9WgXcQ", 250)
     assert len(comments) == 250
 
-@mock.patch("sentimentube.youtube.YouTubeScraper._YouTubeScraper__comment_generator")
+@mock.patch("sentimentube.youtube.YouTubeScraper._comment_generator")
 def test_fetch_comments_returns_all_at_zero(mock_fn):
     y = sentimentube.youtube.YouTubeScraper()
     # return dummy list
     mock_fn.return_value = iter([[str(x) for x in range(500)]])
     comments = y.fetch_comments("dQw4w9WgXcQ", 0)
     assert len(comments) == 500
-
-@mock.patch("sentimentube.youtube.requests.get")
-def test_get_videoinfo_parsing_correctly(mock_fn):
-    y = sentimentube.youtube.YouTubeScraper()
-    mock_fn.return_value = mock_fn = mock.Mock()
-    mock_fn.json.return_value = {"entry": {"yt$statistics": {"viewCount": 0},
-                                           "published": {"$t": "test"},
-                                           "gd$rating":{"average": "test", "numRaters": 0},
-                                           "yt$rating": {"numLikes": 0, "numDislikes": 0},
-                                           "title": {"$t": "test"},
-                                           "media$group": {"media$content": [{"duration": 0}], "media$category":[{"$t": "test"}]},
-                                           "author": [{"yt$userId":{"$t": "test"}}]}}
-    info = y.fetch_videoinfo("dQw4w9WgXcQ")
-    assert "id" in info
-    assert "title" in info
-    assert "author_id" in info
-    assert "category" in info
-    assert "viewcount" in info
-    assert "published" in info
-    assert "duration" in info
-    assert "rating" in info
-    assert "number_of_raters" in info
-    assert "likes" in info
-    assert "dislikes" in info

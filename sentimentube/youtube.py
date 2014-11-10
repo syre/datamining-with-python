@@ -4,17 +4,23 @@ import requests
 import json
 
 class YouTubeScraper:
+
+    """ Class for communicating with the gdata youtube API. """
+
     def __init__(self):
+        """ Set the gdata youtube urls. """
         self.comment_url = "https://gdata.youtube.com/feeds/api/videos/{0}/comments"
         self.video_url = "https://gdata.youtube.com/feeds/api/videos/{0}"
 
-    def __comment_generator(self, video_id):
+    def _comment_generator(self, video_id):
         """
-        A generator for fetching one "page" of youtube comments
-        for a youtube video, it returns a list of comment dictionaries
+        A generator for fetching one "page" of youtube comments.
+
+        For a youtube video, it returns a list of comment dictionaries
         with keys: author_name, author_id, content, video_id, id, published
         It should not be used directly, it is private and the fetch_comments
-        method should be used instead
+        method should be used instead.
+
         Parameters:
         - video_id : the id of the youtube video
         """
@@ -47,12 +53,11 @@ class YouTubeScraper:
 
     def fetch_comments(self, video_id, number=0):
         """
-        fetches a number of youtube comments
-        by using the _comment_generator function
+        fetch a number of youtube comments by using the _comment_generator function.
 
         Parameters:
-        - number : the number of comments to fetch (0 = all comments)
         - video_id : the id of the youtube video
+        - number : the number of comments to fetch (0 = all comments)
 
         """
         comments = []
@@ -67,11 +72,11 @@ class YouTubeScraper:
 
     def fetch_videoinfo(self, video_id):
       """
-      fetches relevant information about the video
-      from the gdata youtube API
+      fetch relevant information about the video from the gdata youtube API.
 
       Parameters:
       - video_id : the id of the youtube video
+
       """
       params = {"v": 2, "alt": "json"}
       r = requests.get(self.video_url.format(video_id), params=params).json()
@@ -102,4 +107,4 @@ class YouTubeScraper:
 
 if __name__ == '__main__':
     c = YouTubeScraper()
-    print(c.fetch_comments("dQw4w9WgXcQ",20))
+    print(c.fetch_comments("DfVSsWEiq8c",20))
