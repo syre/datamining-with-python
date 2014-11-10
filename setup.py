@@ -6,6 +6,16 @@ from setuptools.command.test import test as TestCommand
 
 import sentimentube
 
+class ToxTestCommand(TestCommand):
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        sys.exit(os.system('tox'))
+
 setup(
     license="MIT",
     keywords="youtube sentiment analysis",
