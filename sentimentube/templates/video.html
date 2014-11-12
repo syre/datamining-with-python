@@ -1,8 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
-<p><b>Analysis of video with ID: {{video_info["id"]}}</b></p>
-<object id="ytplayer" data="http://www.youtube.com/embed/{{video_id}}"
+<p><b>Analysis of video with ID: {{video["video_info"]["id"]}}</b></p>
+<object id="ytplayer" data="http://www.youtube.com/embed/{{video["video_info"]["id"]}}"
    width="640" height="390"></object>
-
-<img src="plot.png" alt="plot">
+<p>Positive sentiment value: {{video["sentiment"].n_pos}}</p>
+<p>Negative sentiment value: {{video["sentiment"].n_neg}}</p>
+<p> Overall this video is deemed: {{video["sentiment"].result}}</p>
+<img src="comment_sentiment_plot.png?video_id={{video["video_info"]["id"]}}" alt="plot">
+<img src="video_sentiment_plot.png?video_id={{video["video_info"]["id"]}}" alt="plot">
 {% endblock %}
