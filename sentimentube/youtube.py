@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 import requests
 import json
-
+import dateutil.parser
+import database
+import models
 class YouTubeScraper:
 
     """ Class for communicating with the gdata youtube API. """
@@ -38,13 +40,14 @@ class YouTubeScraper:
                 author_id = comment["author"][0]["yt$userId"]["$t"]
                 content = comment["content"]["$t"]
                 comment_id = comment["id"]["$t"]
-                published = comment["published"]["$t"]
-                comment = {"author_name": author_name,
-                           "author_id": author_id,
-                           "content": content,
-                           "video_id": video_id,
-                           "id": comment_id,
-                           "published": published}
+                published = dateutil.parser.parse(comment["published"]["$t"])
+
+                comment = models.Comment(id=comment_id,
+                                         video_id=video_id,
+                                         author_id=author_id,
+                                         author_name=author_name,
+                                         content=content,
+                                         published=published)
                 comments.append(comment)
             next_url = [e["href"] for e in r["feed"]["link"] if e["rel"] == "next"]
             if next_url:
@@ -59,9 +62,11 @@ class YouTubeScraper:
         - video_id : the id of the youtube video
         - number : the number of comments to fetch (0 = all comments)
 
+        Returns:
+        - list of Comment objects
         """
         comments = []
-        f = self.__comment_generator(video_id)
+        f = self._comment_generator(video_id)
         while(True):
             try:
                 comments += next(f)
@@ -77,6 +82,8 @@ class YouTubeScraper:
       Parameters:
       - video_id : the id of the youtube video
 
+      Returns:
+      - tuple of Video object and list of Categories
       """
       params = {"v": 2, "alt": "json"}
       r = requests.get(self.video_url.format(video_id), params=params).json()
@@ -86,25 +93,24 @@ class YouTubeScraper:
       rating = r["entry"]["gd$rating"]["average"]
       viewcount = int(r["entry"]["yt$statistics"]["viewCount"])
       duration = r["entry"]["media$group"]["media$content"][0]["duration"]
-      category = r["entry"]["media$group"]["media$category"][0]["$t"]
+      categories = r["entry"]["media$group"]["media$category"]
       published = r["entry"]["published"]["$t"]
       numraters = r["entry"]["gd$rating"]["numRaters"]
       likes = r["entry"]["yt$rating"]["numLikes"]
       dislikes = r["entry"]["yt$rating"]["numDislikes"]
-      video_info = {"id" : video_id,
-                    "title": title,
-                    "author_id": author_id,
-                    "category": category,
-                    "viewcount": viewcount,
-                    "duration": duration,
-                    "published": published,
-                    "rating": rating,
-                    "number_of_raters": numraters,
-                    "likes": likes,
-                    "dislikes": dislikes}
-      return video_info
-
+      categories = [models.VideoCategory(type=c["$t"],video_id=video_id) for c in categories]
+      video = models.Video(id=video_id,
+                    title=title,
+                    author_id=author_id,
+                    viewcount=viewcount,
+                    duration=duration,
+                    published=published,
+                    rating=rating,
+                    num_of_raters=numraters,
+                    likes=likes,
+                    dislikes=dislikes)
+      return video, categories
 
 if __name__ == '__main__':
     c = YouTubeScraper()
-    print(c.fetch_comments("DfVSsWEiq8c",20))
+    print(c.fetch_videoinfo("DfVSsWEiq8c"))

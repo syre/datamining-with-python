@@ -28,7 +28,7 @@ setup(
     packages=["sentimentube"],
     long_description=open('README.md').read(),
     install_requires=["requests", "flask", "matplotlib", "sqlite3"],
-    py_modules=["sentimentube"]
+    py_modules=["sentimentube"],
     cmdclass={"test": ToxTestCommand},
     tests_require=["tox"],
     classifiers=[

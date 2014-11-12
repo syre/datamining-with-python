@@ -7,10 +7,9 @@ import random
 import io
 import urllib
 import urllib.parse
+import os
+from sentimentube import youtube, database, models
 
-import sentimentube
-import sentimentube.youtube
-import sentimentube.persister
 app = flask.Flask(__name__)
 
 @app.route("/")
@@ -30,9 +29,11 @@ def video():
         query = dict(urllib.parse.parse_qsl(url[4]))
         video_id = query["v"]
 
-    youtuber = youtube.YouTubeFetcher(video_id)
-    video_info = youtuber.fetch_videoinfo()
-    return flask.render_template("video.html", video_info=video_info)
+    sentiment = database.db_session.query(models.VideoSentiment).filter(models.VideoSentiment.id == video_id).first()
+    if sentiment:
+        video_info = database.db_session.query(models.Video).filter(models.Video.id == video_id).first()
+        video = {"sentiment": sentiment, "video_info": video_info}
+    return flask.render_template("video.html", video=video)
 
 @app.errorhandler(404)
 def not_found(error):
@@ -42,15 +43,40 @@ def not_found(error):
 def previous():
     return flask.render_template("previous.html")
 
-@app.route('/plot.png')
-def plot():
-    fig = Figure()
+@app.route("/comment_sentiment_plot.png")
+def comment_sentiment_plot():
+    video_id = flask.request.args.get("video_id")
+    fig = Figure(figsize=(5,5))
     axis = fig.add_subplot(1, 1, 1)
+    fig.patch.set_alpha(0)
 
-    xs = range(100)
-    ys = [random.randint(1, 50) for x in xs]
+    query = database.db_session.query(models.CommentSentiment).filter(models.CommentSentiment.video_id == video_id).all()
+    xs = [[q.positive for q in query if q.positive], [q.positive for q in query if not q.positive]]
+    axis.hist(xs, bins=1, color=["g","r"])
+    axis.set_xticklabels(["positive", "negative"])
+    axis.set_title("comment sentiment distribution")
+    axis.set_xticks([0.25, 0.75, 1])
+    canvas = FigureCanvas(fig)
+    output = io.BytesIO()
+    canvas.print_png(output)
+    response = flask.make_response(output.getvalue())
+    response.mimetype = 'image/png'
+    return response
 
-    axis.plot(xs, ys)
+@app.route("/video_sentiment_plot.png")
+def video_sentiment_plot():
+    video_id = flask.request.args.get("video_id")
+    fig = Figure(figsize=(5,5))
+    axis = fig.add_subplot(1, 1, 1)
+    fig.patch.set_alpha(0)
+    videos = database.db_session.query(models.VideoSentiment).all()
+    current_video = database.db_session.query(models.VideoSentiment).filter(models.VideoSentiment.id == video_id).first()
+    videos.remove(current_video)
+    axis.plot([v.n_pos for v in videos], [v.n_neg for v in videos], "gx")
+    axis.plot(current_video.n_pos, current_video.n_neg, "rx")
+    axis.set_title("video sentiment comparison")
+    axis.set_xlabel("measure of positivity")
+    axis.set_ylabel("measure of negativity")
     canvas = FigureCanvas(fig)
     output = io.BytesIO()
     canvas.print_png(output)
