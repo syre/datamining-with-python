@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import requests
-import json
 import dateutil.parser
-import database
+import logging
+
 import models
 class YouTubeScraper:
 
@@ -31,7 +31,14 @@ class YouTubeScraper:
 
         while(True):
             if next_url:
-                r = requests.get(next_url, params=params).json()
+                try:
+                    req = requests.get(next_url, params=params)
+                    if not req:
+                        logging.error("_comment_generator: invalid video id")
+                        yield None
+                    r = req.json()
+                except requests.ConnectionError as e:
+                    logging.error("caught ConnectionError {}".format(e))
             else:
                 raise StopIteration
             comments = []
@@ -49,7 +56,7 @@ class YouTubeScraper:
                                          content=content,
                                          published=published)
                 comments.append(comment)
-            next_url = [e["href"] for e in r["feed"]["link"] if e["rel"] == "next"]
+            next_url = [n["href"] for n in r["feed"]["link"] if n["rel"] == "next"]
             if next_url:
                 next_url = next_url[0]
             yield comments
@@ -86,7 +93,12 @@ class YouTubeScraper:
       - tuple of Video object and list of Categories
       """
       params = {"v": 2, "alt": "json"}
-      r = requests.get(self.video_url.format(video_id), params=params).json()
+      req = requests.get(self.video_url.format(video_id), params=params)
+      if not req:
+          logging.error("fetch_videoinfo: invalid video id")
+          raise RuntimeError("invalid video id")
+
+      r = req.json()
 
       title = r["entry"]["title"]["$t"]
       author_id = r["entry"]["author"][0]["yt$userId"]["$t"]
@@ -113,4 +125,4 @@ class YouTubeScraper:
 
 if __name__ == '__main__':
     c = YouTubeScraper()
-    print(c.fetch_videoinfo("DfVSsWEiq8c"))
+    print(c.fetch_videoinfo("wrong_url"))
