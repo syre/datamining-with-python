@@ -37,8 +37,8 @@ class YouTubeScraper:
             if next_url:
                 try:
                     response = requests.get(next_url, params=params)
-                except Exception as e:
-                    self.logger.error("_comment_generator: request failed {}".format(e))
+                except Exception as ex:
+                    self.logger.error("_comment_generator: request failed {}".format(ex))
                     raise
                 else:
                     if not response:
