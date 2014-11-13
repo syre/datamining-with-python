@@ -12,9 +12,10 @@ class YouTubeScraper:
     """ Class for communicating with the gdata youtube API. """
 
     def __init__(self):
-        """ Set the gdata youtube urls. """
+        """ Set the gdata youtube urls and the logger. """
         self.comment_url = "https://gdata.youtube.com/feeds/api/videos/{0}/comments"
         self.video_url = "https://gdata.youtube.com/feeds/api/videos/{0}"
+        self.logger = logging.getLogger(__name__)
 
     def _comment_generator(self, video_id):
         """
@@ -36,11 +37,11 @@ class YouTubeScraper:
                 try:
                     req = requests.get(next_url, params=params)
                     if not req:
-                        logging.error("_comment_generator: invalid video id")
+                        self.logger.error("_comment_generator: invalid video id")
                         yield None
                     r = req.json()
                 except requests.ConnectionError as e:
-                    logging.error("caught ConnectionError {}".format(e))
+                    self.logger.error("caught ConnectionError {}".format(e))
             else:
                 raise StopIteration
             comments = []
@@ -57,6 +58,9 @@ class YouTubeScraper:
                                          author_name=author_name,
                                          content=content,
                                          published=published)
+                query = db_session.query(models.Comment).filter(models.Comment.id == comment_id).first()
+                if not query:
+                    db_session.add(comment)
                 comments.append(comment)
             next_url = [n["href"] for n in r["feed"]["link"] if n["rel"] == "next"]
             if next_url:
@@ -86,7 +90,8 @@ class YouTubeScraper:
 
     def fetch_videoinfo(self, video_id):
       """
-      fetch relevant information about the video from the gdata youtube API.
+      fetch relevant information about the video from the gdata youtube API
+      and stores it in the database.
 
       Parameters:
       - video_id : the id of the youtube video
@@ -97,7 +102,7 @@ class YouTubeScraper:
       params = {"v": 2, "alt": "json"}
       req = requests.get(self.video_url.format(video_id), params=params)
       if not req:
-          logging.error("fetch_videoinfo: invalid video id")
+          self.logger.error("fetch_videoinfo: invalid video id")
           raise RuntimeError("invalid video id")
 
       r = req.json()
@@ -123,6 +128,10 @@ class YouTubeScraper:
                     num_of_raters=numraters,
                     likes=likes,
                     dislikes=dislikes)
+      query = db_session.query(models.Video).filter(models.Video.id == video_id).first()
+      if not query:
+          db_session.add(video)
+          db_session.add_all(categories)
       return video, categories
 
 if __name__ == '__main__':
