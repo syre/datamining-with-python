@@ -4,6 +4,7 @@ import requests
 import dateutil.parser
 import logging
 
+import database
 import models
 
 
@@ -35,17 +36,20 @@ class YouTubeScraper:
         while(True):
             if next_url:
                 try:
-                    req = requests.get(next_url, params=params)
-                    if not req:
-                        self.logger.error("_comment_generator: invalid video id")
-                        yield None
-                    r = req.json()
-                except requests.ConnectionError as e:
-                    self.logger.error("caught ConnectionError {}".format(e))
+                    response = requests.get(next_url, params=params)
+                except Exception as e:
+                    self.logger.error("_comment_generator: request failed {}".format(e))
+                    raise
+                else:
+                    if not response:
+                        error = "_comment_generator: possibly invalid video id: {}".format(video_id)
+                        self.logger.error(error)
+                        raise Exception(error)
+                    response = response.json()
             else:
                 raise StopIteration
             comments = []
-            for comment in r["feed"]["entry"]:
+            for comment in response["feed"]["entry"]:
                 author_name = comment["author"][0]["name"]["$t"]
                 author_id = comment["author"][0]["yt$userId"]["$t"]
                 content = comment["content"]["$t"]
@@ -58,11 +62,12 @@ class YouTubeScraper:
                                          author_name=author_name,
                                          content=content,
                                          published=published)
-                query = db_session.query(models.Comment).filter(models.Comment.id == comment_id).first()
+                query = database.db_session.query(models.Comment).filter(models.Comment.id == comment_id).first()
                 if not query:
-                    db_session.add(comment)
+                    database.db_session.add(comment)
+                    database.db_session.commit()
                 comments.append(comment)
-            next_url = [n["href"] for n in r["feed"]["link"] if n["rel"] == "next"]
+            next_url = [link["href"] for link in response["feed"]["link"] if link["rel"] == "next"]
             if next_url:
                 next_url = next_url[0]
             yield comments
@@ -128,12 +133,13 @@ class YouTubeScraper:
                     num_of_raters=numraters,
                     likes=likes,
                     dislikes=dislikes)
-      query = db_session.query(models.Video).filter(models.Video.id == video_id).first()
+      query = database.db_session.query(models.Video).filter(models.Video.id == video_id).first()
       if not query:
-          db_session.add(video)
-          db_session.add_all(categories)
+          database.db_session.add(video)
+          database.db_session.add_all(categories)
+          database.db_session.commit()
       return video, categories
 
 if __name__ == '__main__':
     c = YouTubeScraper()
-    print(c.fetch_videoinfo("wrong_url"))
+    print(c.fetch_comments("RiQYcw-u18I"))
