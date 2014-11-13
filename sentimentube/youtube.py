@@ -5,6 +5,8 @@ import dateutil.parser
 import logging
 
 import models
+
+
 class YouTubeScraper:
 
     """ Class for communicating with the gdata youtube API. """
