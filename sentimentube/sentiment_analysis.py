@@ -1,13 +1,18 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import nltk.classify.util
 from nltk.classify import NaiveBayesClassifier
 from nltk.corpus import movie_reviews
 import pickle
-from youtube import *
+import os
 import logging
 
+import youtube
+import models
+import database
 
 class SentimentAnalysis:
-
     """Class for making sentiment analysis of video comments"""
 
     def __init__(self):
@@ -15,10 +20,10 @@ class SentimentAnalysis:
         Call the load method to load the classifier from file.
         Creating an object to YouTubeScaper
         """
-        self.youtube = YouTubeScraper()
+        self.youtube = youtube.YouTubeScraper()
         self.logger = logging.getLogger(__name__)
-        file_name = 'my_classifier'
-        self.load_classifier(file_name)
+        self.file_path = os.path.join(os.path.dirname(__file__), "data", "classifier.pickle")
+        self.load_classifier(self.file_path)
 
     def word_feats_extractor(self, words):
         """
@@ -26,13 +31,7 @@ class SentimentAnalysis:
         :param words: List of words from corpus
         :return: Dict of the words as keys and value True
         """
-        #cleanWords = [word for word in words if not word in stopwords.words('english')]
         return dict([(word, True) for word in words])
-        #docwords = set(doc)
-        #features = {}
-        #for i in wordList:
-        #    features['contains(%s)' % i] = (i in docwords)
-        #return features
 
     def train(self, file_name):
         """
@@ -45,45 +44,92 @@ class SentimentAnalysis:
         negfeats = [(self.word_feats_extractor(movie_reviews.words(fileids=[f])), 'neg') for f in negids]
         posfeats = [(self.word_feats_extractor(movie_reviews.words(fileids=[f])), 'pos') for f in posids]
 
-        negcutoff = int(len(negfeats)*3/4)
-        poscutoff = int(len(posfeats)*3/4)
+        negcutoff = int(len(negfeats) * 3 / 4)
+        poscutoff = int(len(posfeats) * 3 / 4)
         self.logger.debug("Number of negative features: {0}".format(negcutoff))
         self.logger.debug("Number of positive features: {0}".format(poscutoff))
         trainfeats = negfeats[:negcutoff] + posfeats[:poscutoff]
-        #testfeats = negfeats[negcutoff:] + posfeats[poscutoff:]
-        #print('train on {0} instances, test on {1} instances'.format(len(trainfeats), len(testfeats)))
 
         classifier = NaiveBayesClassifier.train(trainfeats)
         self.save_classifier(classifier, file_name)
 
-    def save_classifier(self, classifier, file_name):
+    def save_classifier(self, classifier):
         """
         Saving the classifier to a pickle file
         :param classifier: The trained classifier
         """
         try:
-            f = open(file_name + ".pickle", 'wb')
+            f = open(self.filepath, 'wb')
             pickle.dump(classifier, f, 1)
             f.close()
             self.logger.info("Classifier saved successfully!")
         except IOError:
             self.logger.debug("Couldn't save the classifier to pickle")
 
-    def load_classifier(self, file_name):
+    def load_classifier(self):
         """
         Loading a trained classifier from file. If it fails, it's training a new
-        :param: file_name: Filename of the file which should be loaded as classifier
+        :param: filepath: Filepath of the file which should be loaded as classifier
         """
         try:
-            #with open('my_classifier.pickle', 'rb') as f:
-            #classifier = nltk.classifier
-            self.classifier = nltk.data.load(file_name + ".pickle", 'pickle', 1) #pickle.load(f)
+            self.classifier = nltk.data.load(self.filepath, 'pickle', 1)
             self.logger.info("Classifier loaded!")
-            #print("Det lykkedes umiddelbart!")
         except FileExistsError:
             self.logger.error("I/O error: file not found")
             self.logger.info("Will train a classifier")
             self.train()
+
+    def compare_comments_number(self, video_id, n_comments):
+        """
+        WARNING: This method doesn't work do to normalization. Need a fix!
+        Checks if the video has been analysed before. If so, it checks if there has been posted new comments since last
+        time, by comparing number of comments (database vs. video). If there are are a change, it return False,
+        True otherwise
+        :param video_id: The ID of the video
+        :param n_comments: number of comment of the video. The number is from Youtube
+        :return: Boolean
+        """
+        db_res = database.db_session.query(models.VideoSentiment).filter(
+            models.VideoSentiment.id == video_id).first()
+        if not db_res:
+            return False
+        else:
+            if (db_res.n_pos + db_res.n_neg) == n_comments:
+                return True
+            else:
+                return False
+
+    def save_sentiment(self, clusters, comments):
+        """
+        Saves the results of sentiment analysis to the database.
+        Result of each comment and for the whole video
+        :param comments: comments of the video with their sentiments
+        :param clusters: sentiment result for the whole video: number of pos and neg comments (normalized)
+                         and final verdict of the video
+        """
+        db_comments = database.db_session.query(models.Comment).filter(
+            models.Comment.video_id == comments[0].video_id).all()
+        db_comment_ids = [db_comment.id for db_comment in db_comments]
+        
+        for comment in comments:
+            if comment.id not in db_comment_ids:
+                database.db_session.add(models.CommentSentiment(
+                    id=comment.id, video_id=comment.video_id, positive=comment.sentiment))
+
+        db_videosentiment = database.db_session.query(models.VideoSentiment).filter(
+            models.VideoSentiment.id == comments[0].video_id).all()
+        
+        if db_videosentiment:
+            result_db = database.db_session.query(models.VideoSentiment).filter(
+                models.VideoSentiment.id == comments[0].video_id).first()
+            result_db.result = clusters["result"]
+            database.db_session.add(result_db)
+        else:
+            database.db_session.add(models.VideoSentiment(id=comments[0].video_id,
+                                                          n_pos=clusters["pos"],
+                                                          n_neg=clusters["neg"],
+                                                          result=clusters["result"]))
+        database.db_session.commit()
 
     def classify_comments(self, video_id):
         """
@@ -94,22 +140,34 @@ class SentimentAnalysis:
         """
         clusters = {"pos": 0, "neg": 0}
         comments = self.youtube.fetch_comments(video_id)
-        for i, comment in enumerate(comments): #list[index]["content"]
-            res = self.classifier.classify(self.word_feats_extractor(comment["content"]))
-            print(res)
-            clusters[res] += 1
-            comments[i]["sentiment"] = res
+        #the line below doesn't work do to normalization! A fix is needed!
+        result = self.compare_comments_number(video_id, len(comments))
+        if result:
+            self.logger.info("Last sentiment analysis were done on the same number of as we have now. "
+                             "So no reason to make sentiment")
+        else:
+            self.logger.info(
+                "Their is a change in comments. We do sentiment analysis")
+            for i, comment in enumerate(comments):
+                print(comment.content)
+                res = self.classifier.classify(self.word_feats_extractor(comment.content))
+                print(res)
+                clusters[res] += 1
+                if res == "pos":
+                    comments[i].sentiment = 1
+                else:
+                    comments[i].sentiment = 0
 
-        total_data = clusters["pos"]+clusters["neg"]
-        self.logger.debug("Number of negative comments: {0}".format(clusters["neg"]))
-        self.logger.debug("Number of positive comments: {0}".format(clusters["pos"]))
-        clusters["pos"] /= total_data
-        clusters["neg"] /= total_data
-        self.logger.debug("Number of negative comments after normalization: {0}".format(clusters["neg"]))
-        self.logger.debug("Number of positive comments after normalization: {0}".format(clusters["pos"]))
-
-        clusters["result"] = self.eval(clusters)
-        self.logger.info("The result of the video: {0}".format(clusters["result"]))
+            total_data = clusters["pos"] + clusters["neg"]
+            self.logger.debug("Number of negative comments: {0}".format(clusters["neg"]))
+            self.logger.debug("Number of positive comments: {0}".format(clusters["pos"]))
+            clusters["pos"] /= total_data
+            clusters["neg"] /= total_data
+            self.logger.debug("Number of negative comments after normalization: {0}".format(clusters["neg"]))
+            self.logger.debug("Number of positive comments after normalization: {0}".format(clusters["pos"]))
+            clusters["result"] = self.eval(clusters)
+            self.logger.info("The result of the video: {0}".format(clusters["result"]))
+            self.save_sentiment(clusters, comments)
 
     def eval(self, clusters):
         """
@@ -123,6 +181,7 @@ class SentimentAnalysis:
         :param clusters:
         :return:
         """
+        print("Hej eval")
         if clusters["pos"] < .25:
             res = "strong negative"
             return res
@@ -138,38 +197,3 @@ class SentimentAnalysis:
         else:
             res = "strong positive"
             return res
-
-
-
-
-   # print 'accuracy:', nltk.classify.util.accuracy(classifier, testfeats)
-   # classifier.show_most_informative_features()
-
-
-    # In[4]:
-
-    # while True:
-    #     input = raw_input("Please write a sentence to be tested for sentiment. If you type 'exit', the program will quit.    If you want to see the most informative features, type informfeatures.")
-    #     if input == 'exit':
-    #         break
-    #     elif input == 'informfeatures':
-    #         print classifier.show_most_informative_features(n=30)
-    #         continue
-    #     else:
-    #         input = input.lower()
-    #         input = input.split()
-    #         print '\nWe think that the sentiment was ' + classifier.classify(word_feats_extractor(input)) + ' in that sentence.\n'
-    #
-    #
-    #
-    #
-    # list[index]["content"]
-
-
-
-
-
-
-
-
-
