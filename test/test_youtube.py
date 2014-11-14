@@ -41,7 +41,7 @@ class YouTubeTestCase(TestCase):
     def test_comment_generator_wrong_videoid_handles_gracefully(self, mock_logger):
         y = youtube.YouTubeScraper()
         generator = y._comment_generator("wrong url")
-        self.assertRaises(StopIteration, next(generator))
+        self.assertRaises(RuntimeError, next, generator)
         mock_logger.assert_called()
 
     @mock.patch("logging.Logger.error")

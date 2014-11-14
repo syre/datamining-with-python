@@ -38,14 +38,14 @@ class YouTubeScraper:
             if next_url:
                 try:
                     response = requests.get(next_url, params=params)
-                except Exception as ex:
-                    self.logger.error("_comment_generator: request failed {}".format(ex))
+                except requests.exceptions.RequestException:
+                    self.logger.exception("_comment_generator: request failed")
                     raise
                 else:
                     if not response:
                         error = "_comment_generator: possibly invalid video id: {}".format(video_id)
                         self.logger.error(error)
-                        raise Exception(error)
+                        raise ValueError(error)
                     response = response.json()
             else:
                 raise StopIteration
@@ -109,7 +109,7 @@ class YouTubeScraper:
       req = requests.get(self.video_url.format(video_id), params=params)
       if not req:
           self.logger.error("fetch_videoinfo: invalid video id")
-          raise RuntimeError("invalid video id")
+          raise ValueError("invalid video id")
 
       r = req.json()
 
@@ -145,4 +145,4 @@ class YouTubeScraper:
 
 if __name__ == '__main__':
     c = YouTubeScraper()
-    print(c.fetch_comments("dRYqmYXjnoQ"))
+    print(c.fetch_comments("wrong_url"))
