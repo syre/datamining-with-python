@@ -65,6 +65,8 @@ input[type=submit]:active {
   header {
     h1 {
       font-family: "Oswald", sans-serif;
+      font-size: 3em;
+      margin-bottom: 0;
       }
   }
   nav {
@@ -102,6 +104,12 @@ input[type=submit]:active {
   hr {
     margin: 0 auto;
     width: 80%;
+  }
+  .video-item {
+    border-bottom: 1px dotted #c3c3c3;
+    margin-right: auto;
+    margin-left: auto;
+    width: 20%;
   }
 }
 }

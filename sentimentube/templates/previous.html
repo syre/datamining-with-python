@@ -1,4 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
-<p><b>Previous analyzes:</b></p>
+{% for video in latest %}
+<div class="video-item">
+  <p><a href="/video?video_id={{video.id}}">{{video.title}}</a></p>
+</div>
+{% endfor %}
 {% endblock %}

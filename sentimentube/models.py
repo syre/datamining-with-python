@@ -12,6 +12,7 @@ class Comment(base):
     author_name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     content = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     published = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
+
     def __repr__(self):
         return "{}(id={}, video_id={}, author_id={}, content={})".format(self.__class__.__name__, self.id, self.video_id, self.author_id, self.content)
 
@@ -28,6 +29,8 @@ class Video(base):
     dislikes = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     rating = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
     num_of_raters = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    timestamp = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
+
     def __repr__(self):
         return "{}(id={}, title={}, author_id={})".format(self.__class__.__name__, self.id, self.title, self.author_id)
 
@@ -47,6 +50,7 @@ class CommentSentiment(base):
     id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("comments.id"),primary_key=True, nullable=False)
     video_id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("videos.id"), nullable=False)
     positive = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False)
+
     def __repr__(self):
         return "{}(id={}, video_id={}, positive={})".format(self.__class__.__name__, self.id, self.video_id, self.positive)
 
@@ -56,5 +60,6 @@ class VideoCategory(base):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False)
     video_id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("videos.id"), nullable=False)
     type = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+
     def __repr__(self):
         return "{}(id={}, video_id={}, type={})".format(self.__class__.__name__, self.id, self.video_id, self.type)

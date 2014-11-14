@@ -3,6 +3,7 @@
 import requests
 import dateutil.parser
 import logging
+import datetime
 
 import database
 import models
@@ -122,6 +123,7 @@ class YouTubeScraper:
       numraters = r["entry"]["gd$rating"]["numRaters"]
       likes = r["entry"]["yt$rating"]["numLikes"]
       dislikes = r["entry"]["yt$rating"]["numDislikes"]
+      timestamp = datetime.datetime.now()
       categories = [models.VideoCategory(type=c["$t"],video_id=video_id) for c in categories]
       video = models.Video(id=video_id,
                     title=title,
@@ -132,7 +134,8 @@ class YouTubeScraper:
                     rating=rating,
                     num_of_raters=numraters,
                     likes=likes,
-                    dislikes=dislikes)
+                    dislikes=dislikes,
+                    timestamp=timestamp)
       query = database.db_session.query(models.Video).filter(models.Video.id == video_id).first()
       if not query:
           database.db_session.add(video)
@@ -142,4 +145,4 @@ class YouTubeScraper:
 
 if __name__ == '__main__':
     c = YouTubeScraper()
-    print(c.fetch_comments("RiQYcw-u18I"))
+    print(c.fetch_comments("dRYqmYXjnoQ"))

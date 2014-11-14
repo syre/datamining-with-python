@@ -23,7 +23,7 @@ html {
     -moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
     -webkit-box-shadow: inset 0px 1px 0px 0px #ffffff;
     box-shadow: inset 0px 1px 0px 0px #ffffff;
-    background: linear-gradient(to bottom, white 5%, #f6f6f6 100%);
+    background: linear-gradient(to bottom, #ffffff 5%, #f6f6f6 100%);
     background-color: #ffffff;
     border-radius: 6px;
     border: 1px solid #dcdcdc;
@@ -37,7 +37,7 @@ html {
     text-decoration: none;
     text-shadow: 0px 1px 0px #ffffff; }
   html input[type=submit]:hover {
-    background: linear-gradient(to bottom, #f6f6f6 5%, white 100%);
+    background: linear-gradient(to bottom, #f6f6f6 5%, #ffffff 100%);
     background-color: #f6f6f6; }
   html input[type=submit]:active {
     position: relative;
@@ -55,7 +55,9 @@ html {
     min-height: 600px;
     padding-top: 1%; }
     html #container header h1 {
-      font-family: "Oswald", sans-serif; }
+      font-family: "Oswald", sans-serif;
+      font-size: 3em;
+      margin-bottom: 0; }
     html #container nav ul {
       margin-top: 10px;
       margin-bottom: 10px;
@@ -81,3 +83,10 @@ html {
     html #container hr {
       margin: 0 auto;
       width: 80%; }
+    html #container .video-item {
+      border-bottom: 1px dotted #c3c3c3;
+      margin-right: auto;
+      margin-left: auto;
+      width: 20%; }
+
+/*# sourceMappingURL=style.css.map */
