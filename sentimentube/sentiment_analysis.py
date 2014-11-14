@@ -31,7 +31,6 @@ class SentimentAnalysis:
         :param words: List of words from corpus
         :return: Dict of the words as keys and value True
         """
-
         return dict([(word, True) for word in words])
 
     def train(self, file_name):
@@ -54,7 +53,7 @@ class SentimentAnalysis:
         classifier = NaiveBayesClassifier.train(trainfeats)
         self.save_classifier(classifier, file_name)
 
-    def save_classifier(self, classifier, file_name):
+    def save_classifier(self, classifier):
         """
         Saving the classifier to a pickle file
         :param classifier: The trained classifier
@@ -67,13 +66,13 @@ class SentimentAnalysis:
         except IOError:
             self.logger.debug("Couldn't save the classifier to pickle")
 
-    def load_classifier(self, filepath):
+    def load_classifier(self):
         """
         Loading a trained classifier from file. If it fails, it's training a new
         :param: filepath: Filepath of the file which should be loaded as classifier
         """
         try:
-            self.classifier = nltk.data.load(filepath, 'pickle', 1)
+            self.classifier = nltk.data.load(self.filepath, 'pickle', 1)
             self.logger.info("Classifier loaded!")
         except FileExistsError:
             self.logger.error("I/O error: file not found")
@@ -81,6 +80,15 @@ class SentimentAnalysis:
             self.train()
 
     def compare_comments_number(self, video_id, n_comments):
+        """
+        WARNING: This method doesn't work do to normalization. Need a fix!
+        Checks if the video has been analysed before. If so, it checks if there has been posted new comments since last
+        time, by comparing number of comments (database vs. video). If there are are a change, it return False,
+        True otherwise
+        :param video_id: The ID of the video
+        :param n_comments: number of comment of the video. The number is from Youtube
+        :return: Boolean
+        """
         db_res = database.db_session.query(models.VideoSentiment).filter(
             models.VideoSentiment.id == video_id).first()
         if not db_res:
@@ -93,19 +101,28 @@ class SentimentAnalysis:
 
     def save_sentiment(self, clusters, comments):
         """
-
         :param comments:
+        Saves the results of sentiment analysis to the database.
+        Result of each comment and for the whole video
+        :param comments: comments of the video with their sentiments
+        :param clusters: sentiment result for the whole video: number of pos and neg comments (normalized)
+                         and final verdict of the video
         """
-        db_comments = database.db_session.query(models.Comment).filter(models.Comment.video_id == comments[0].video_id).all()
+        db_comments = database.db_session.query(models.Comment).filter(
+            models.Comment.video_id == comments[0].video_id).all()
         db_comment_ids = [db_comment.id for db_comment in db_comments]
+
         for comment in comments:
             if comment.id not in db_comment_ids:
-                database.db_session.add(models.CommentSentiment(id=comment.id, video_id=comment.video_id, positive=comment.sentiment))
+                database.db_session.add(models.CommentSentiment(
+                    id=comment.id, video_id=comment.video_id, positive=comment.sentiment))
 
-        db_videosentiment = database.db_session.query(models.VideoSentiment).filter(models.VideoSentiment.id ==
-                                                                         comments[0].video_id).all()
+        db_videosentiment = database.db_session.query(models.VideoSentiment).filter(
+            models.VideoSentiment.id == comments[0].video_id).all()
+
         if db_videosentiment:
-            result_db = database.db_session.query(models.VideoSentiment).filter(models.VideoSentiment.id == comments[0].video_id).first()
+            result_db = database.db_session.query(models.VideoSentiment).filter(
+                models.VideoSentiment.id == comments[0].video_id).first()
             result_db.result = clusters["result"]
             database.db_session.add(result_db)
         else:
@@ -124,6 +141,8 @@ class SentimentAnalysis:
         """
         clusters = {"pos": 0, "neg": 0}
         comments = self.youtube.fetch_comments(video_id)
+
+        #the line below doesn't work do to normalization! A fix is needed!
         result = self.compare_comments_number(video_id, len(comments))
         if result:
             self.logger.info("Last sentiment analysis were done on the same number of as we have now. "
@@ -131,31 +150,29 @@ class SentimentAnalysis:
         else:
             self.logger.info(
                 "Their is a change in comments. We do sentiment analysis")
-            for i, comment in enumerate(comments):  # list[index]["content"]
+
+            for comment in comments:
                 print(comment.content)
                 res = self.classifier.classify(self.word_feats_extractor(comment.content))
                 print(res)
                 clusters[res] += 1
                 if res == "pos":
-                    comments[i].sentiment = 1
+                    comment.sentiment = 1
                 else:
-                    comments[i].sentiment = 0
+                    comment.sentiment = 0
 
             total_data = clusters["pos"] + clusters["neg"]
             self.logger.debug("Number of negative comments: {0}".format(clusters["neg"]))
             self.logger.debug("Number of positive comments: {0}".format(clusters["pos"]))
-            print("hej hej hej")
+
             clusters["pos"] /= total_data
             clusters["neg"] /= total_data
             self.logger.debug("Number of negative comments after normalization: {0}".format(clusters["neg"]))
             self.logger.debug("Number of positive comments after normalization: {0}".format(clusters["pos"]))
-            print("hej hej ")
+
             clusters["result"] = self.eval(clusters)
-            print("farvel eval")
             self.logger.info("The result of the video: {0}".format(clusters["result"]))
             self.save_sentiment(clusters, comments)
-
-            print("hej")
 
     def eval(self, clusters):
         """
@@ -172,17 +189,13 @@ class SentimentAnalysis:
         print("Hej eval")
         if clusters["pos"] < .25:
             res = "strong negative"
-            return res
         elif clusters["pos"] >= .25 and clusters["pos"] < .4:
             res = "slight negative"
-            return res
         elif clusters["pos"] >= .4 and clusters["pos"] < .6:
             res = "neutral"
-            return res
         elif clusters["pos"] >= .6 and clusters["pos"] < .75:
             res = "slight positive"
-            return res
         else:
             res = "strong positive"
-            return res
-        print("Hej eval ")
+
+        return res
