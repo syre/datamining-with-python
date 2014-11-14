@@ -186,7 +186,6 @@ class SentimentAnalysis:
         :param clusters:
         :return:
         """
-        print("Hej eval")
         if clusters["pos"] < .25:
             res = "strong negative"
         elif clusters["pos"] >= .25 and clusters["pos"] < .4:
