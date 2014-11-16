@@ -23,7 +23,7 @@ class SentimentAnalysis:
         self.youtube = youtube.YouTubeScraper()
         self.logger = logging.getLogger(__name__)
         self.file_path = os.path.join(os.path.dirname(__file__), "data", "classifier.pickle")
-        self.load_classifier(self.file_path)
+        self.load_classifier()
 
     def word_feats_extractor(self, words):
         """
@@ -72,7 +72,7 @@ class SentimentAnalysis:
         :param: filepath: Filepath of the file which should be loaded as classifier
         """
         try:
-            self.classifier = nltk.data.load(self.filepath, 'pickle', 1)
+            self.classifier = nltk.data.load(self.file_path, 'pickle', 1)
             self.logger.info("Classifier loaded!")
         except FileExistsError:
             self.logger.error("I/O error: file not found")
@@ -141,7 +141,8 @@ class SentimentAnalysis:
         """
         clusters = {"pos": 0, "neg": 0}
         comments = self.youtube.fetch_comments(video_id)
-
+        # right now isnt used, just called for database save
+        video = self.youtube.fetch_videoinfo(video_id)
         #the line below doesn't work do to normalization! A fix is needed!
         result = self.compare_comments_number(video_id, len(comments))
         if result:

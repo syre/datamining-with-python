@@ -15,6 +15,7 @@ import sentiment_analysis
 
 logging.basicConfig(format="%(asctime)s %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+analyzer = sentiment_analysis.SentimentAnalysis()
 app = flask.Flask(__name__)
 
 
@@ -38,11 +39,12 @@ def video():
     sentiment = database.db_session.query(models.VideoSentiment).filter(models.VideoSentiment.id == video_id).first()
     if sentiment:
         logger.info("sentiment for video with id:{} found in database".format(video_id))
-        video_info = database.db_session.query(models.Video).filter(models.Video.id == video_id).first()
-        video = {"sentiment": sentiment, "video_info": video_info}
-        return flask.render_template("video.html", video=video)
     else:
-        return flask.render_template("error.html", error="Wrong video ID")
+        analyzer.classify_comments(video_id)
+        sentiment = database.db_session.query(models.VideoSentiment).filter(models.VideoSentiment.id == video_id).first()
+    video_info = database.db_session.query(models.Video).filter(models.Video.id == video_id).first()
+    video = {"sentiment": sentiment, "video_info": video_info}
+    return flask.render_template("video.html", video=video)
 
 @app.errorhandler(404)
 def not_found(error):
@@ -84,7 +86,6 @@ def video_sentiment_plot():
 
     videos = database.db_session.query(models.VideoSentiment).all()
     current_video = database.db_session.query(models.VideoSentiment).filter(models.VideoSentiment.id == video_id).first()
-    videos.remove(current_video)
 
     axis.plot([v.n_pos for v in videos], [v.n_neg for v in videos], "gx")
     axis.plot(current_video.n_pos, current_video.n_neg, "rx")

@@ -111,18 +111,18 @@ class YouTubeScraper:
           self.logger.error("fetch_videoinfo: invalid video id")
           raise ValueError("invalid video id")
 
-      r = req.json()
+      req = req.json()
 
-      title = r["entry"]["title"]["$t"]
-      author_id = r["entry"]["author"][0]["yt$userId"]["$t"]
-      rating = r["entry"]["gd$rating"]["average"]
-      viewcount = int(r["entry"]["yt$statistics"]["viewCount"])
-      duration = r["entry"]["media$group"]["media$content"][0]["duration"]
-      categories = r["entry"]["media$group"]["media$category"]
-      published = r["entry"]["published"]["$t"]
-      numraters = r["entry"]["gd$rating"]["numRaters"]
-      likes = r["entry"]["yt$rating"]["numLikes"]
-      dislikes = r["entry"]["yt$rating"]["numDislikes"]
+      title = req["entry"]["title"]["$t"]
+      author_id = req["entry"]["author"][0]["yt$userId"]["$t"]
+      rating = req["entry"]["gd$rating"]["average"]
+      viewcount = int(req["entry"]["yt$statistics"]["viewCount"])
+      duration = req["entry"]["media$group"]["media$content"][0]["duration"]
+      categories = req["entry"]["media$group"]["media$category"]
+      published = dateutil.parser.parse(req["entry"]["published"]["$t"])
+      numraters = req["entry"]["gd$rating"]["numRaters"]
+      likes = req["entry"]["yt$rating"]["numLikes"]
+      dislikes = req["entry"]["yt$rating"]["numDislikes"]
       timestamp = datetime.datetime.now()
       categories = [models.VideoCategory(type=c["$t"],video_id=video_id) for c in categories]
       video = models.Video(id=video_id,
