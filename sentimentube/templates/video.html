@@ -1,12 +1,17 @@
 {% extends "layout.html" %}
 {% block content %}
 <h2>Description</h2>
-
 <object id="ytplayer" data="http://www.youtube.com/embed/{{video["video_info"]["id"]}}"
    width="640" height="390"></object>
+<p>{{video["video_info"]["title"]}}</p>
+<p>Viewcount: {{video["video_info"]["viewcount"]}}
+<p>Likes: {{video["video_info"]["likes"]}}</p>
+<p>Dislikes: {{video["video_info"]["dislikes"]}}</p>
+<p>Rating: {{"{0:.3}".format(video["video_info"]["rating"])}} </p>
 <h2>Analysis of video with ID: {{video["video_info"]["id"]}}</h2>
-<p>Positive sentiment value: {{video["sentiment"].n_pos}}</p>
-<p>Negative sentiment value: {{video["sentiment"].n_neg}}</p>
+<p> Analysis made from a total of {{video["num_of_comments"]}} comments</p>
+<p>Positive sentiment value: {{"{0:.3}".format(video["sentiment"].n_pos)}}</p>
+<p>Negative sentiment value: {{"{0:.3}".format(video["sentiment"].n_neg)}}</p>
 <p> Overall this video is deemed: {{video["sentiment"].result}}</p>
 <img src="comment_sentiment_plot.png?video_id={{video["video_info"]["id"]}}" alt="plot">
 <img src="video_sentiment_plot.png?video_id={{video["video_info"]["id"]}}" alt="plot">

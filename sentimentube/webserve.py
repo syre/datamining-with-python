@@ -40,10 +40,15 @@ def video():
     if sentiment:
         logger.info("sentiment for video with id:{} found in database".format(video_id))
     else:
-        analyzer.classify_comments(video_id)
+        try:
+            analyzer.classify_comments(video_id)
+        except ValueError:
+            return flask.render_template("error.html", error="invalid video id")
         sentiment = database.db_session.query(models.VideoSentiment).filter(models.VideoSentiment.id == video_id).first()
+
     video_info = database.db_session.query(models.Video).filter(models.Video.id == video_id).first()
-    video = {"sentiment": sentiment, "video_info": video_info}
+    num_of_comments = len(database.db_session.query(models.Comment).filter(models.Comment.video_id == video_id).all())
+    video = {"sentiment": sentiment, "video_info": video_info, "num_of_comments" : num_of_comments}
     return flask.render_template("video.html", video=video)
 
 @app.errorhandler(404)
