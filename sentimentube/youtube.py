@@ -5,7 +5,6 @@ import dateutil.parser
 import logging
 import datetime
 
-import database
 import models
 
 
@@ -63,10 +62,6 @@ class YouTubeScraper:
                                          author_name=author_name,
                                          content=content,
                                          published=published)
-                query = database.db_session.query(models.Comment).filter(models.Comment.id == comment_id).first()
-                if not query:
-                    database.db_session.add(comment)
-                    database.db_session.commit()
                 comments.append(comment)
             next_url = [link["href"] for link in response["feed"]["link"] if link["rel"] == "next"]
             if next_url:
@@ -136,11 +131,6 @@ class YouTubeScraper:
                     likes=likes,
                     dislikes=dislikes,
                     timestamp=timestamp)
-      query = database.db_session.query(models.Video).filter(models.Video.id == video_id).first()
-      if not query:
-          database.db_session.add(video)
-          database.db_session.add_all(categories)
-          database.db_session.commit()
       return video, categories
 
 if __name__ == '__main__':
