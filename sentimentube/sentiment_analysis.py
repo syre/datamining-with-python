@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from urllib.error import URLError
 
 import nltk.classify.util
 from nltk.classify import NaiveBayesClassifier
@@ -38,6 +39,7 @@ class SentimentAnalysis:
         Training the Naïve Bayes classifier
         :param file_name: Filename of which the classifier should be saved as
         """
+
         negids = movie_reviews.fileids('neg')
         posids = movie_reviews.fileids('pos')
 
@@ -72,7 +74,7 @@ class SentimentAnalysis:
         :param: filepath: Filepath of the file which should be loaded as classifier
         """
         try:
-            self.classifier = nltk.data.load(self.file_path, 'pickle', 1)
+            self.classifier = nltk.data.load("file:"+self.file_path, 'pickle', 1)
             self.logger.info("Classifier loaded!")
         except FileExistsError:
             self.logger.error("I/O error: file not found")
@@ -108,12 +110,12 @@ class SentimentAnalysis:
         :param clusters: sentiment result for the whole video: number of pos and neg comments (normalized)
                          and final verdict of the video
         """
-        db_comments = database.db_session.query(models.Comment).filter(
-            models.Comment.video_id == comments[0].video_id).all()
-        db_comment_ids = [db_comment.id for db_comment in db_comments]
+        db_comments_sentiment = database.db_session.query(models.CommentSentiment).filter(
+            models.CommentSentiment.video_id == comments[0].video_id).all()
+        db_comment_sentiment_ids = [db_comment.id for db_comment in db_comments_sentiment]
 
         for comment in comments:
-            if comment.id not in db_comment_ids:
+            if comment.id not in db_comment_sentiment_ids:
                 database.db_session.add(models.CommentSentiment(
                     id=comment.id, video_id=comment.video_id, positive=comment.sentiment))
 
@@ -132,7 +134,7 @@ class SentimentAnalysis:
                                                                                 result=clusters["result"]))
         database.db_session.commit()
 
-    def classify_comments(self, video_id):
+    def classify_comments(self, comments):
         """
         Classifying a youtube-videos comments, by classify each comments and let the method 'eval' make a decision
         It normalize the ratio between number of positive and negative comments, before calling the 'eval' method
@@ -140,11 +142,11 @@ class SentimentAnalysis:
         :return:
         """
         clusters = {"pos": 0, "neg": 0}
-        comments = self.youtube.fetch_comments(video_id)
+        #comments = self.youtube.fetch_comments(video_id)
         # right now isnt used, just called for database save
-        video = self.youtube.fetch_videoinfo(video_id)
+        video = self.youtube.fetch_videoinfo(comments[0].video_id)
         #the line below doesn't work do to normalization! A fix is needed!
-        result = self.compare_comments_number(video_id, len(comments))
+        result = self.compare_comments_number(comments[0].video_id, len(comments))
         if result:
             self.logger.info("Last sentiment analysis were done on the same number of as we have now. "
                              "So no reason to make sentiment")
