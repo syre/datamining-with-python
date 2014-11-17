@@ -176,6 +176,7 @@ class SentimentAnalysis:
             clusters["result"] = self.eval(clusters)
             self.logger.info("The result of the video: {0}".format(clusters["result"]))
             self.save_sentiment(clusters, comments)
+            return clusters, comments
 
     def eval(self, clusters):
         """
