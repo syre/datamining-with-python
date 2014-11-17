@@ -32,8 +32,7 @@ class YouTubeScraper:
         - video_id : the id of the youtube video
         """
         next_url = self.comment_url.format(video_id)
-        params = {"v": 2, "alt": "json", "max-results": 50,
-                  "orderby": "published"}
+        params = {"v": 2, "alt": "json", "max-results": 50}
 
         while(True):
             if next_url:

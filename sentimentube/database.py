@@ -14,3 +14,4 @@ base = declarative_base()
 def init_db():
     import models
     base.metadata.create_all(bind=engine)
+#init_db()
