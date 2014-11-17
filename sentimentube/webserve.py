@@ -64,11 +64,39 @@ def video():
                     database.db_session.add(comment)
             database.db_session.commit()
 
+        video_sentiment, comments_sentiment = analyzer.classify_comments(comments)
+        save_sentiment(video_sentiment, comments_sentiment)
 
-        sentiment = analyzer.classify_comments(comments)
-
-    video = {"sentiment": sentiment, "video_info": video, "num_of_comments" : len(comments)}
+    video = {"sentiment": sentiment, "video_info": video, "num_of_comments": len(comments)}
     return flask.render_template("video.html", video=video)
+
+def save_sentiment(video_sentiment, comments_sentiment):
+    """
+    Saves the results of sentiment analysis to the database.
+    The result of each comment and for the whole video is saved
+    :param video_sentiment: sentiment result for the whole video: number of pos and neg comments (normalized)
+                            and final verdict of the video
+    :param comments_sentiment: comments of the video with their sentiments
+    """
+    db_comments_sentiment = database.db_session.query(models.CommentSentiment).filter(
+            models.CommentSentiment.video_id == video_sentiment.id).all()
+    db_comment_sentiment_ids = [db_comment.id for db_comment in db_comments_sentiment]
+
+    for comment_sentiment in comments_sentiment:
+        if comment_sentiment.id not in db_comment_sentiment_ids:
+            database.db_session.add(comment_sentiment)
+
+    db_videosentiment = database.db_session.query(models.VideoSentiment).filter(
+        models.VideoSentiment.id == video_sentiment.id).all()
+
+    if db_videosentiment:
+        video_sentiment_db = database.db_session.query(models.VideoSentiment).filter(
+            models.VideoSentiment.id == video_sentiment.id).first()
+        video_sentiment_db.result = video_sentiment.result
+        #database.db_session.add(video_sentiment_db)
+    else:
+        database.db_session.add(video_sentiment)
+    database.db_session.commit()
 
 @app.errorhandler(404)
 def not_found(error):

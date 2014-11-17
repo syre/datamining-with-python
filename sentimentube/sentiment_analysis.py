@@ -101,38 +101,6 @@ class SentimentAnalysis:
             else:
                 return False
 
-    def save_sentiment(self, video_sentiment, comments_sentiment, clusters, comments):
-        """
-        :param comments:
-        Saves the results of sentiment analysis to the database.
-        Result of each comment and for the whole video
-        :param comments: comments of the video with their sentiments
-        :param clusters: sentiment result for the whole video: number of pos and neg comments (normalized)
-                         and final verdict of the video
-        """
-        db_comments_sentiment = database.db_session.query(models.CommentSentiment).filter(
-            models.CommentSentiment.video_id == comments[0].video_id).all()
-        db_comment_sentiment_ids = [db_comment.id for db_comment in db_comments_sentiment]
-
-        for comment in comments:
-            if comment.id not in db_comment_sentiment_ids:
-                database.db_session.add(models.CommentSentiment(
-                    id=comment.id, video_id=comment.video_id, positive=comment.sentiment))
-
-        db_videosentiment = database.db_session.query(models.VideoSentiment).filter(
-            models.VideoSentiment.id == comments[0].video_id).all()
-
-        if db_videosentiment:
-            result_db = database.db_session.query(models.VideoSentiment).filter(
-                models.VideoSentiment.id == comments[0].video_id).first()
-            result_db.result = clusters["result"]
-            database.db_session.add(result_db)
-        else:
-            database.db_session.add(models.VideoSentiment(id=comments[0].video_id,
-                                                                                n_pos=clusters["pos"],
-                                                                                n_neg=clusters["neg"],
-                                                                                result=clusters["result"]))
-        database.db_session.commit()
 
     def classify_comments(self, comments):
         """
@@ -181,7 +149,7 @@ class SentimentAnalysis:
 
             video_sentiment.result = self.eval(clusters)
             self.logger.info("The result of the video: {0}".format(clusters["result"]))
-            self.save_sentiment(video_sentiment, comments_sentiment)
+            #self.save_sentiment(video_sentiment, comments_sentiment)
             return video_sentiment, comments_sentiment
 
     def eval(self, video_sentiment):
