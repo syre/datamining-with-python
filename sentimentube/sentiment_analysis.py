@@ -133,7 +133,7 @@ class SentimentAnalysis:
             self.logger.debug("Number of positive comments: {0}".format(video_sentiment.n_pos))
 
             video_sentiment.n_pos /= total_data
-            video_sentiment.n_pos /= total_data
+            video_sentiment.n_neg /= total_data
             self.logger.debug("Number of negative comments after normalization: {0}".format(video_sentiment.n_neg))
             self.logger.debug("Number of positive comments after normalization: {0}".format(video_sentiment.n_pos))
 
