@@ -8,8 +8,6 @@ from nltk.corpus import movie_reviews
 import pickle
 import os
 import logging
-
-import youtube
 import models
 import database
 
@@ -22,7 +20,6 @@ class SentimentAnalysis:
         Call the load method to load the classifier from file.
         Creating an object to YouTubeScaper
         """
-        self.youtube = youtube.YouTubeScraper()
         self.logger = logging.getLogger(__name__)
         self.file_path = os.path.join(os.path.dirname(__file__), "data", "classifier.pickle")
         self.load_classifier()
@@ -110,9 +107,6 @@ class SentimentAnalysis:
         :return:
         """
         video_sentiment = models.VideoSentiment(id=comments[0].video_id, n_pos=0, n_neg=0, result="")
-        #comments = self.youtube.fetch_comments(video_id)
-        # right now isnt used, just called for database save
-        video = self.youtube.fetch_videoinfo(comments[0].video_id)
         #the line below doesn't work do to normalization! A fix is needed!
         result = self.compare_comments_number(comments[0].video_id, len(comments))
         if result:
@@ -123,9 +117,7 @@ class SentimentAnalysis:
                 "Their is a change in comments. We do sentiment analysis")
             comments_sentiment = []
             for comment in comments:
-                print(comment.content)
                 res = self.classifier.classify(self.word_feats_extractor(comment.content))
-                print(res)
 
                 if res == "pos":
                     video_sentiment.n_pos += 1
