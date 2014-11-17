@@ -109,7 +109,6 @@ class SentimentAnalysis:
         :param video_id: The ID of youtube-video
         :return:
         """
-        clusters = {"pos": 0, "neg": 0}
         video_sentiment = models.VideoSentiment(id=comments[0].video_id, n_pos=0, n_neg=0, result="")
         #comments = self.youtube.fetch_comments(video_id)
         # right now isnt used, just called for database save
@@ -128,7 +127,6 @@ class SentimentAnalysis:
                 res = self.classifier.classify(self.word_feats_extractor(comment.content))
                 print(res)
 
-                clusters[res] += 1
                 if res == "pos":
                     video_sentiment.n_pos += 1
                     comments_sentiment.append(models.CommentSentiment(id=comment.id, video_id=comment.video_id,
@@ -147,8 +145,8 @@ class SentimentAnalysis:
             self.logger.debug("Number of negative comments after normalization: {0}".format(video_sentiment.n_neg))
             self.logger.debug("Number of positive comments after normalization: {0}".format(video_sentiment.n_pos))
 
-            video_sentiment.result = self.eval(clusters)
-            self.logger.info("The result of the video: {0}".format(clusters["result"]))
+            video_sentiment.result = self.eval(video_sentiment)
+            self.logger.info("The result of the video: {0}".format(video_sentiment.result))
             return video_sentiment, comments_sentiment
 
     def eval(self, video_sentiment):
