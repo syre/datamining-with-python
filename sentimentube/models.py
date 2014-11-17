@@ -16,9 +16,9 @@ class Comment(base):
     published = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
 
     def __repr__(self):
-        return "{}(id={}, video_id={}, author_id={}, content={})".
-        format(self.__class__.__name__, self.id, self.video_id, self.author_id,
-               self.content)
+        return "{}(id={}, video_id={}, author_id={}, content={})".format(
+            self.__class__.__name__, self.id, self.video_id, self.author_id,
+            self.content)
 
 
 class Video(base):
@@ -37,8 +37,8 @@ class Video(base):
     timestamp = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
 
     def __repr__(self):
-        return "{}(id={}, title={}, author_id={})"
-        .format(self.__class__.__name__, self.id, self.title, self.author_id)
+        return "{}(id={}, title={}, author_id={})".format(
+            self.__class__.__name__, self.id, self.title, self.author_id)
 
 
 class VideoSentiment(base):
@@ -52,9 +52,9 @@ class VideoSentiment(base):
     result = sqlalchemy.Column(sqlalchemy.String, nullable=False)
 
     def __repr__(self):
-        return "{}(id={}, n_pos={:.3}, n_neg={:.3}, result={})"
-        .format(self.__class__.__name__, self.id, self.n_pos, self.n_neg,
-                self.result)
+        return "{}(id={}, n_pos={:.3}, n_neg={:.3}, result={})".format(
+            self.__class__.__name__, self.id, self.n_pos, self.n_neg,
+            self.result)
 
 
 class CommentSentiment(base):
@@ -69,8 +69,8 @@ class CommentSentiment(base):
     positive = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False)
 
     def __repr__(self):
-        return "{}(id={}, video_id={}, positive={})"
-        .format(self.__class__.__name__, self.id, self.video_id, self.positive)
+        return "{}(id={}, video_id={}, positive={})".format(
+            self.__class__.__name__, self.id, self.video_id, self.positive)
 
 
 class VideoCategory(base):
@@ -84,5 +84,5 @@ class VideoCategory(base):
     type = sqlalchemy.Column(sqlalchemy.String, nullable=False)
 
     def __repr__(self):
-        return "{}(id={}, video_id={}, type={})".
-        format(self.__class__.__name__, self.id, self.video_id, self.type)
+        return "{}(id={}, video_id={}, type={})".format(
+            self.__class__.__name__, self.id, self.video_id, self.type)

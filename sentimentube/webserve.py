@@ -31,20 +31,22 @@ def save_sentiment(video_sentiment, comments_sentiment):
     number of pos and neg comments (normalized) and final verdict of the video
     :param comments_sentiment: comments of the video with their sentiments
     """
-    db_sentiments = database.db_session.query(models.CommentSentiment)
-    .filter(models.CommentSentiment.video_id == video_sentiment.id).all()
+    db_sentiments = database.db_session.query(models.CommentSentiment).filter(
+        models.CommentSentiment.video_id == video_sentiment.id).all()
     db_comment_sentiment_ids = [db_comment.id for db_comment in db_sentiments]
 
     for comment_sentiment in comments_sentiment:
         if comment_sentiment.id not in db_comment_sentiment_ids:
             database.db_session.add(comment_sentiment)
 
-    db_videosentiment = database.db_session.query(models.VideoSentiment)
-    .filter(models.VideoSentiment.id == video_sentiment.id).all()
+    db_videosentiment = database.db_session.query(
+        models.VideoSentiment).filter(
+            models.VideoSentiment.id == video_sentiment.id).all()
 
     if db_videosentiment:
-        video_sentiment_db = database.db_session.query(models.VideoSentiment)
-        .filter(models.VideoSentiment.id == video_sentiment.id).first()
+        video_sentiment_db = database.db_session.query(
+            models.VideoSentiment).filter(
+            models.VideoSentiment.id == video_sentiment.id).first()
         video_sentiment_db.result = video_sentiment.result
     else:
         database.db_session.add(video_sentiment)
@@ -70,45 +72,45 @@ def video():
         query = dict(urllib.parse.parse_qsl(url[4]))
         video_id = query["v"]
 
-    sentiment = database.db_session.query(models.VideoSentiment).
-    filter(models.VideoSentiment.id == video_id).first()
+    sentiment = database.db_session.query(models.VideoSentiment).filter(
+        models.VideoSentiment.id == video_id).first()
     if sentiment:
         logger.info("sentiment for video with id:{} found in database"
                     .format(video_id))
 
-        video = database.db_session.query(models.Video)
-        .filter(models.Video.id == video_id).first()
+        video_info = database.db_session.query(models.Video).filter(
+            models.Video.id == video_id).first()
 
-        comments = database.db_session.query(models.Comment)
-        .filter(models.Comment.video_id == video_id).all()
+        comments = database.db_session.query(models.Comment).filter(
+            models.Comment.video_id == video_id).all()
     else:
         logger.info("processing new video with id: {}".format(video_id))
         try:
-            video, categories = scraper.fetch_videoinfo(video_id)
+            video_info, categories = scraper.fetch_videoinfo(video_id)
             comments = scraper.fetch_comments(video_id)
         except ValueError:
             return flask.render_template("error.html",
                                          error="invalid video id")
         else:
-            exists = database.db_session.query(models.Video)
-            .filter(models.Video.id == video_id).first()
+            exists = database.db_session.query(models.Video).filter(
+                models.Video.id == video_id).first()
 
             if not exists:
                 database.db_session.add(video_info)
                 database.db_session.add_all(categories)
 
             for comment in comments:
-                exists = database.db_session.query(models.Comment)
-                .filter(models.Comment.id == comment_id).first()
+                exists = database.db_session.query(models.Comment).filter(
+                    models.Comment.id == comment.id).first()
 
                 if not exists:
                     database.db_session.add(comment)
             database.db_session.commit()
 
-        vid_sentiment, com_sentiments = analyzer.classify_comments(comments)
-        save_sentiment(vid_sentiment, comments_sentiment)
+        sentiment, comment_sentiments = analyzer.classify_comments(comments)
+        save_sentiment(sentiment, comment_sentiments)
 
-    video = {"sentiment": sentiment, "video_info": video,
+    video = {"sentiment": sentiment, "video_info": video_info,
              "num_of_comments": len(comments)}
     return flask.render_template("video.html", video=video)
 
@@ -133,8 +135,8 @@ def comment_sentiment_plot():
     axis = fig.add_subplot(1, 1, 1)
     fig.patch.set_alpha(0)
 
-    query = database.db_session.query(models.CommentSentiment)
-    .filter(models.CommentSentiment.video_id == video_id).all()
+    query = database.db_session.query(models.CommentSentiment).filter(
+        models.CommentSentiment.video_id == video_id).all()
 
     xs = [[q.positive for q in query if q.positive],
           [q.positive for q in query if not q.positive]]
@@ -161,8 +163,8 @@ def video_sentiment_plot():
 
     videos = database.db_session.query(models.VideoSentiment).all()
 
-    current_video = database.db_session.query(models.VideoSentiment)
-    .filter(models.VideoSentiment.id == video_id).first()
+    current_video = database.db_session.query(models.VideoSentiment).filter(
+        models.VideoSentiment.id == video_id).first()
 
     axis.plot([v.n_pos for v in videos], [v.n_neg for v in videos], "gx")
     axis.plot(current_video.n_pos, current_video.n_neg, "rx")

@@ -14,8 +14,8 @@ class YouTubeScraper:
 
     def __init__(self):
         """ Set the gdata youtube urls and the logger. """
-        self.comment_url =
-        "https://gdata.youtube.com/feeds/api/videos/{0}/comments"
+        self.comment_url = "https://gdata.youtube.com/feeds/api/videos/{0}/" \
+                           "comments"
         self.video_url = "https://gdata.youtube.com/feeds/api/videos/{0}"
         self.logger = logging.getLogger(__name__)
 
@@ -44,8 +44,8 @@ class YouTubeScraper:
                     raise
                 else:
                     if not response:
-                        error = "_comment_generator: invalid video id: {}"
-                        .format(video_id)
+                        error = "_comment_generator: invalid video id: " \
+                            "{}".format(video_id)
                         self.logger.error(error)
                         raise ValueError(error)
                     response = response.json()
