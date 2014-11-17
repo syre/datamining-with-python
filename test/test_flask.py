@@ -23,6 +23,3 @@ class WebServeTestCase(TestCase):
     def test_video_page_load_error_wrong_id(self):
         response = self.app.get("/video?video_id={}".format("wrong_id"))
         assert "Error: invalid video id" in response.data.decode("utf-8")
-
-    def test_previous_page_correct(self):
-        database
