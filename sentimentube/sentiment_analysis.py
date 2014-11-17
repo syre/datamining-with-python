@@ -101,7 +101,7 @@ class SentimentAnalysis:
             else:
                 return False
 
-    def save_sentiment(self, clusters, comments):
+    def save_sentiment(self, video_sentiment, comments_sentiment, clusters, comments):
         """
         :param comments:
         Saves the results of sentiment analysis to the database.
@@ -142,6 +142,7 @@ class SentimentAnalysis:
         :return:
         """
         clusters = {"pos": 0, "neg": 0}
+        video_sentiment = models.VideoSentiment(id=comments[0].video_id, n_pos=0, n_neg=0, result="")
         #comments = self.youtube.fetch_comments(video_id)
         # right now isnt used, just called for database save
         video = self.youtube.fetch_videoinfo(comments[0].video_id)
@@ -153,32 +154,37 @@ class SentimentAnalysis:
         else:
             self.logger.info(
                 "Their is a change in comments. We do sentiment analysis")
-
+            comments_sentiment = []
             for comment in comments:
                 print(comment.content)
                 res = self.classifier.classify(self.word_feats_extractor(comment.content))
                 print(res)
+
                 clusters[res] += 1
                 if res == "pos":
-                    comment.sentiment = 1
+                    video_sentiment.n_pos += 1
+                    comments_sentiment.append(models.CommentSentiment(id=comment.id, video_id=comment.video_id,
+                                                                      positive=1))
                 else:
-                    comment.sentiment = 0
+                    video_sentiment.n_neg += 1
+                    comments_sentiment.append(models.CommentSentiment(id=comment.id, video_id=comment.video_id,
+                                                                      positive=0))
 
-            total_data = clusters["pos"] + clusters["neg"]
-            self.logger.debug("Number of negative comments: {0}".format(clusters["neg"]))
-            self.logger.debug("Number of positive comments: {0}".format(clusters["pos"]))
+            total_data = video_sentiment.n_pos + video_sentiment.n_neg
+            self.logger.debug("Number of negative comments: {0}".format(video_sentiment.n_neg))
+            self.logger.debug("Number of positive comments: {0}".format(video_sentiment.n_pos))
 
-            clusters["pos"] /= total_data
-            clusters["neg"] /= total_data
-            self.logger.debug("Number of negative comments after normalization: {0}".format(clusters["neg"]))
-            self.logger.debug("Number of positive comments after normalization: {0}".format(clusters["pos"]))
+            video_sentiment.n_pos /= total_data
+            video_sentiment.n_pos /= total_data
+            self.logger.debug("Number of negative comments after normalization: {0}".format(video_sentiment.n_neg))
+            self.logger.debug("Number of positive comments after normalization: {0}".format(video_sentiment.n_pos))
 
-            clusters["result"] = self.eval(clusters)
+            video_sentiment.result = self.eval(clusters)
             self.logger.info("The result of the video: {0}".format(clusters["result"]))
-            self.save_sentiment(clusters, comments)
-            return clusters, comments
+            self.save_sentiment(video_sentiment, comments_sentiment)
+            return video_sentiment, comments_sentiment
 
-    def eval(self, clusters):
+    def eval(self, video_sentiment):
         """
         Taking a decision of the whole youtube-video based on the ratio between positive and negative comments
         It takes a decision like so, based on number positive comments (nPos):
@@ -190,13 +196,13 @@ class SentimentAnalysis:
         :param clusters:
         :return:
         """
-        if clusters["pos"] < .25:
+        if video_sentiment.n_pos < .25:
             res = "strong negative"
-        elif clusters["pos"] >= .25 and clusters["pos"] < .4:
+        elif video_sentiment.n_pos >= .25 and video_sentiment.n_pos < .4:
             res = "slight negative"
-        elif clusters["pos"] >= .4 and clusters["pos"] < .6:
+        elif video_sentiment.n_pos >= .4 and video_sentiment.n_pos < .6:
             res = "neutral"
-        elif clusters["pos"] >= .6 and clusters["pos"] < .75:
+        elif video_sentiment.n_pos >= .6 and video_sentiment.n_pos < .75:
             res = "slight positive"
         else:
             res = "strong positive"
