@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+from unittest import mock, TestCase
 import webserve
 import youtube
 import unittest
+import database
 
-class WebServeTestCase(unittest.TestCase):
+class WebServeTestCase(TestCase):
     def setUp(self):
         webserve.app.config["TESTING"] = True
         self.app = webserve.app.test_client()
@@ -21,4 +22,7 @@ class WebServeTestCase(unittest.TestCase):
 
     def test_video_page_load_error_wrong_id(self):
         response = self.app.get("/video?video_id={}".format("wrong_id"))
-        assert "Wrong video ID" in response.data.decode("utf-8")
+        assert "Error: invalid video id" in response.data.decode("utf-8")
+
+    def test_previous_page_correct(self):
+        database
