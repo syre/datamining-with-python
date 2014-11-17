@@ -13,6 +13,7 @@ import youtube
 import models
 import database
 
+
 class SentimentAnalysis:
     """Class for making sentiment analysis of video comments"""
 
@@ -101,7 +102,6 @@ class SentimentAnalysis:
             else:
                 return False
 
-
     def classify_comments(self, comments):
         """
         Classifying a youtube-videos comments, by classify each comments and let the method 'eval' make a decision
@@ -149,7 +149,6 @@ class SentimentAnalysis:
 
             video_sentiment.result = self.eval(clusters)
             self.logger.info("The result of the video: {0}".format(clusters["result"]))
-            #self.save_sentiment(video_sentiment, comments_sentiment)
             return video_sentiment, comments_sentiment
 
     def eval(self, video_sentiment):
