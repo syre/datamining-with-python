@@ -1,21 +1,17 @@
 Python program:
-    klasse til at hente youtube kommentarer
-    klasse til at lave sentiment analysis
+    nyt corpus
+    multiple versioner af python?
+    setup.py
+    gennemgå kode og evaluere kode
 Database:
-    gemme youtube-id
-    gemme kommentarer
-    gemme resultat af sentiment analysis
+    kigge på normalisering af kommentarer
 Webservice:
-    brugergrænseflade med sentiment analysis
-    grafer/grafik
-    søge på youtube URL/eller id
-    integration med youtube så man kan søge på videoer på siden, se video og knap til sentiment analysis
-Greasemonkey script/Chrome plugin:
+    eventuelt spinner eller lignende
 
 Yderligere ting:
     PEP8 checkning
     Tests og code coverage med Pytest
-    Documentation/Docstrings
+    Documentation/Docstrings, sphinx?
 
 
 Vi vælger en database med ACID properties, da vi vil have garanteret atomicitet.
