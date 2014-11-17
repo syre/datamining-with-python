@@ -12,10 +12,14 @@ import sqlalchemy
 import database
 import models
 import sentiment_analysis
+import youtube
 
 logging.basicConfig(format="%(asctime)s %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
 analyzer = sentiment_analysis.SentimentAnalysis()
+scraper = youtube.YouTubeScraper()
+
 app = flask.Flask(__name__)
 
 
@@ -39,16 +43,31 @@ def video():
     sentiment = database.db_session.query(models.VideoSentiment).filter(models.VideoSentiment.id == video_id).first()
     if sentiment:
         logger.info("sentiment for video with id:{} found in database".format(video_id))
+        video = database.db_session.query(models.Video).filter(models.Video.id == video_id).first()
+        comments = database.db_session.query(models.Comment).filter(models.Comment.video_id == video_id).all()
     else:
+        logger.info("processing new video with id: {}".format(video_id))
         try:
-            analyzer.classify_comments(video_id)
+            video, categories = scraper.fetch_videoinfo(video_id)
+            comments = scraper.fetch_comments(video_id)
         except ValueError:
             return flask.render_template("error.html", error="invalid video id")
-        sentiment = database.db_session.query(models.VideoSentiment).filter(models.VideoSentiment.id == video_id).first()
+        else:
+            exists = database.db_session.query(models.Video).filter(models.Video.id == video_id).first()
+            if not exists:
+                database.db_session.add(video_info)
+                database.db_session.add_all(categories)
 
-    video_info = database.db_session.query(models.Video).filter(models.Video.id == video_id).first()
-    num_of_comments = len(database.db_session.query(models.Comment).filter(models.Comment.video_id == video_id).all())
-    video = {"sentiment": sentiment, "video_info": video_info, "num_of_comments" : num_of_comments}
+            for comment in comments:
+                exists = database.db_session.query(models.Comment).filter(models.Comment.id == comment_id).first()
+                if not exists:
+                    database.db_session.add(comment)
+            database.db_session.commit()
+
+
+        sentiment = analyzer.classify_comments(comments)
+
+    video = {"sentiment": sentiment, "video_info": video, "num_of_comments" : len(comments)}
     return flask.render_template("video.html", video=video)
 
 @app.errorhandler(404)
