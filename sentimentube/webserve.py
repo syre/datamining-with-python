@@ -62,7 +62,6 @@ def index():
 def about():
     return flask.render_template("about.html")
 
-
 @app.route("/video")
 def video():
     video_id = flask.request.args.get("video_id")
