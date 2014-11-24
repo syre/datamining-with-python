@@ -15,16 +15,16 @@ import database
 class SentimentAnalysis:
     """Class for making sentiment analysis of video comments"""
 
-    def __init__(self):
+    def __init__(self, file_name):
         """
         Call the load method to load the classifier from file.
-        Creating an object to YouTubeScaper
         """
+
         self.logger = logging.getLogger(__name__)
-        self.file_path = os.path.join(os.path.dirname(__file__), "data", "classifier.pickle")
+        self.file_path = os.path.join(os.path.dirname(__file__), file_name)
         self.load_classifier()
 
-    def word_feats_extractor(self, words):
+    def _word_feats_extractor(self, words):
         """
         Extract features from corpus
         :param words: List of words from corpus
@@ -32,7 +32,7 @@ class SentimentAnalysis:
         """
         return dict([(word, True) for word in words])
 
-    def train(self, file_name):
+    def _train(self, file_name):
         """
         Training the Naïve Bayes classifier
         :param file_name: Filename of which the classifier should be saved as
@@ -51,9 +51,9 @@ class SentimentAnalysis:
         trainfeats = negfeats[:negcutoff] + posfeats[:poscutoff]
 
         classifier = NaiveBayesClassifier.train(trainfeats)
-        self.save_classifier(classifier, file_name)
+        self.save_classifier(classifier)
 
-    def save_classifier(self, classifier):
+    def _save_classifier(self, classifier):
         """
         Saving the classifier to a pickle file
         :param classifier: The trained classifier
@@ -79,7 +79,7 @@ class SentimentAnalysis:
             self.logger.info("Will train a classifier")
             self.train()
 
-    def compare_comments_number(self, video_id, n_comments):
+    def _compare_comments_number(self, video_id, n_comments):
         """
         WARNING: This method doesn't work do to normalization. Need a fix!
         Checks if the video has been analysed before. If so, it checks if there has been posted new comments since last
@@ -117,7 +117,7 @@ class SentimentAnalysis:
                 "Their is a change in comments. We do sentiment analysis")
             comments_sentiment = []
             for comment in comments:
-                res = self.classifier.classify(self.word_feats_extractor(comment.content))
+                res = self.classifier.classify(self.word_feats_extractor(comment.content.split()))
 
                 if res == "pos":
                     video_sentiment.n_pos += 1
@@ -141,7 +141,7 @@ class SentimentAnalysis:
             self.logger.info("The result of the video: {0}".format(video_sentiment.result))
             return video_sentiment, comments_sentiment
 
-    def eval(self, video_sentiment):
+    def _eval(self, video_sentiment):
         """
         Taking a decision of the whole youtube-video based on the ratio between positive and negative comments
         It takes a decision like so, based on number positive comments (nPos):
