@@ -17,7 +17,7 @@ import youtube
 logging.basicConfig(format="%(asctime)s %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-analyzer = sentiment_analysis.SentimentAnalysis()
+analyzer = sentiment_analysis.SentimentAnalysis("data/classifier.pickle")
 scraper = youtube.YouTubeScraper()
 
 app = flask.Flask(__name__)
