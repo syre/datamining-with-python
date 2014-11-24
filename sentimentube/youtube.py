@@ -32,7 +32,7 @@ class YouTubeScraper:
         - video_id : the id of the youtube video
         """
         next_url = self.comment_url.format(video_id)
-        params = {"v": 2, "alt": "json", "max-results": 50}
+        params = {"v": 2, "alt": "json", "max-results": 50, "orderby": "published"}
 
         while(True):
             if next_url:
@@ -64,6 +64,7 @@ class YouTubeScraper:
                                          author_name=author_name,
                                          content=content,
                                          published=published)
+
                 comments.append(comment)
             next_url = [link["href"] for link in response["feed"]["link"]
                         if link["rel"] == "next"]

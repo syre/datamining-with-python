@@ -97,6 +97,10 @@ def video():
             if not exists:
                 database.db_session.add(video_info)
                 database.db_session.add_all(categories)
+            
+            # get unique comments only
+            unique_ids = set([comment.id for comment in comments])
+            comments = [next(com for com in comments if com.id == id) for id in unique_ids]
 
             for comment in comments:
                 exists = database.db_session.query(models.Comment).filter(
