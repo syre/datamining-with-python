@@ -41,4 +41,4 @@ class TestCodeFormat(unittest.TestCase):
             if errors:
                 for error in errors:
                     print(error)
-                self.assertTrue(False)
+                self.assertTrue(False,msg="pylint fail")
