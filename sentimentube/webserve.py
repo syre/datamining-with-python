@@ -140,15 +140,16 @@ def comment_sentiment_plot():
 
     query = database.db_session.query(models.CommentSentiment).filter(
         models.CommentSentiment.video_id == video_id).all()
+    positive = [q.positive for q in query if q.positive]
+    negative = [q.positive for q in query if not q.positive]
 
-    xs = [[q.positive for q in query if q.positive],
-          [q.positive for q in query if not q.positive]]
-
-    axis.hist(xs, bins=1, color=["g", "r"])
+    if positive:
+        axis.hist(positive, color=["g"], align="left")
+    if negative:
+        axis.hist(negative, color=["r"], align="right")
     axis.set_xticklabels(["positive", "negative"])
     axis.set_title("comment sentiment distribution")
     axis.set_ylabel("number of comments")
-    axis.set_xticks([0.25, 0.75, 1])
     canvas = FigureCanvas(fig)
     output = io.BytesIO()
     canvas.print_png(output)

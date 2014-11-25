@@ -4,7 +4,7 @@ import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 import os
 cwdir = os.path.join(os.path.dirname(__file__), "data", "project.db")
-engine = sqlalchemy.create_engine("sqlite:///{}".format(cwdir), echo=True)
+engine = sqlalchemy.create_engine("sqlite:///{}".format(cwdir), echo=False)
 db_session = sqlalchemy.orm.scoped_session(sqlalchemy.orm.sessionmaker(
                                            autocommit=False, autoflush=False,
                                            bind=engine))
