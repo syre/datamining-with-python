@@ -21,4 +21,3 @@ def init_db():
     """
     import models  # pylint: disable=unused-variable
     BASE.metadata.create_all(bind=ENGINE)
-#init_db()
