@@ -36,7 +36,7 @@ class TestCodeFormat(unittest.TestCase):
     def test_pylint_compliance(self):
         cmd = ["pylint", "--rcfile={}".format(os.path.join(cwd, os.pardir,
                                                            "pylint.rc")),
-               "sentimentube"]
+               "sentimentube", "test"]
         try:
             subprocess.check_output(cmd, universal_newlines=True)
         except subprocess.CalledProcessError as e:
