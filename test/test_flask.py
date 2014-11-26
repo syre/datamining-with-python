@@ -25,6 +25,7 @@ class WebServeTestCase(TestCase):
                                                  dislikes=1,
                                                  rating=3,
                                                  num_of_raters=5,
+                                                 num_of_comments=5,
                                                  timestamp=datetime.datetime
                                                  .now()))
             database.db_session.add(models.VideoSentiment(id=v_id,
@@ -62,7 +63,7 @@ class WebServeTestCase(TestCase):
     def setUp(self):
         webserve.app.config["TESTING"] = True
         self.app = webserve.app.test_client()
-        database.engine = sqlalchemy.create_engine("sqlite://", echo=True)
+        database.engine = sqlalchemy.create_engine("sqlite://", echo=False)
         database.db_session = sqlalchemy.orm.scoped_session(sqlalchemy.orm
                                                             .sessionmaker(
                                                                 autocommit=
@@ -94,8 +95,10 @@ class WebServeTestCase(TestCase):
     def test_video_page_load_correct_full_youtubeurl(self):
         id = "Video 1"
         self.insert_rows([id])
-        response = self.app.get("/video?video_id=https://www.youtube.com/watch?v={}".format(id))
-        assert "Analysis of video with ID: {}".format(id) in response.data.decode("utf-8")
+        response = self.app.get(
+            "/video?video_id=https://www.youtube.com/watch?v={}".format(id))
+        assert "Analysis of video with ID: {}".format(id) in\
+            response.data.decode("utf-8")
 
     def test_video_page_load_correct_from_youtube(self):
         id = "tkXr3uxM2fY"
@@ -162,18 +165,6 @@ class WebServeTestCase(TestCase):
         sentiment = database.db_session.query(
             models.VideoSentiment).filter_by(id=id).first()
         assert sentiment
-
-    def test_video_page_load_correct_full_youtubeurl(self):
-        self.insert_rows(["Video 1"])
-        response = self.app.get(
-            "/video?video_id=https://www.youtube.com/watch?v=Video 1")
-        assert "Analysis of video with ID: Video 1" in \
-               response.data.decode("utf-8")
-
-    def test_video_page_load_correct_from_youtube(self):
-        response = self.app.get("/video?video_id=tkXr3uxM2fY")
-        assert "Analysis of video with ID: tkXr3uxM2fY" in\
-               response.data.decode("utf-8")
 
     def test_video_page_comment_sentiment_plot_only_negative(self):
         self.insert_rows(positive_list=[False])
