@@ -112,8 +112,8 @@ def video():
         database.db_session.commit()
 
         sentiment, comment_sentiments = analyzer.classify_comments(comments)
-        save_sentiment(sentiment, comment_sentiments)
 
+    save_sentiment(sentiment, comment_sentiments)
     video = {"sentiment": sentiment, "video_info": video_info,
              "num_of_comments": len(comments)}
     return flask.render_template("video.html", video=video)

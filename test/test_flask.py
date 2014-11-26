@@ -10,7 +10,7 @@ import datetime
 
 class WebServeTestCase(TestCase):
 
-    def insert_rows(self, video_ids=["Video 1"], positive_list=[True]):
+    def insert_rows(self, video_ids=["tkXr3uxM2fY"], positive_list=[True]):
         for video_index, v_id in enumerate(video_ids):
             database.db_session.add(models.Video(id=v_id,
                                                  title="test title {}".
@@ -31,8 +31,7 @@ class WebServeTestCase(TestCase):
             database.db_session.add(models.VideoSentiment(id=v_id,
                                                           n_pos=5.2,
                                                           n_neg=10.2,
-                                                          result="significantl"
-                                                                 "y negative"))
+                                                          result="negative"))
             for com_index, pos in enumerate(positive_list):
                 database.db_session.add(models.Comment(id="comment {} {}"
                                                        .format(video_index,
@@ -80,8 +79,8 @@ class WebServeTestCase(TestCase):
         assert "Enter ID or URL" in response.data.decode("utf-8")
 
     def test_video_page_load_correct_from_database(self):
-        id = "Video 1"
-        self.insert_rows()
+        id = "tkXr3uxM2fY"
+        self.insert_rows([id])
         response = self.app.get("/video?video_id={}".format(id))
         assert "Analysis of video with ID: {}".format(id) in \
                response.data.decode("utf-8")
@@ -91,8 +90,7 @@ class WebServeTestCase(TestCase):
         assert "Error: invalid video id" in response.data.decode("utf-8")
 
     def test_video_page_load_correct_full_youtubeurl(self):
-        id = "Video 1"
-        self.insert_rows([id])
+        id = "tkXr3uxM2fY"
         response = self.app.get(
             "/video?video_id=https://www.youtube.com/watch?v={}".format(id))
         assert "Analysis of video with ID: {}".format(id) in\
@@ -166,37 +164,43 @@ class WebServeTestCase(TestCase):
         assert sentiment
 
     def test_video_page_comment_sentiment_plot_only_negative(self):
+        v_id = "tkXr3uxM2fY"
         self.insert_rows(positive_list=[False])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}"
-                                .format("Video 1"))
+                                .format(v_id))
         assert response.status_code == 200
 
     def test_video_page_comment_sentiment_plot_only_positive(self):
-        self.insert_rows(["Video 1"], positive_list=[True])
+        v_id = "tkXr3uxM2fY"
+        self.insert_rows(positive_list=[True])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}"
-                                .format("Video 1"))
+                                .format(v_id))
         assert response.status_code == 200
 
     def test_video_page_comment_sentiment_plot_mixed(self):
-        self.insert_rows(["Video 1"], positive_list=[True, False])
+        v_id = "tkXr3uxM2fY"
+        self.insert_rows(positive_list=[True, False])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}"
-                                .format("Video 1"))
+                                .format(v_id))
         assert response.status_code == 200
 
     def test_video_page_video_sentiment_plot_correct(self):
+        v_id = "tkXr3uxM2fY"
         self.insert_rows()
         response = self.app.get("/video_sentiment_plot.png?video_id={}"
-                                .format("Video 1"))
+                                .format(v_id))
         assert response.status_code == 200
 
     def test_previous_page_taking_newest(self):
-        self.insert_rows(["Video {}".format(i) for i in range(1, 10)])
+        ids = ["5nO7IA1DeeI", "vykkfDITkQs",
+               "C3zqYM3Rkpg", "0piaF7P3404",
+               "Ek_cufWYvjE", "zNJJBD_I5EU",
+               "v2zTVZFlCZ0", "ZLa6sX9N3Jw",
+               "c6qOBFkvdG0", "eYhHyUU-CYU"]
+        self.insert_rows(ids)
         response = self.app.get("/previous")
-        assert "Video 5" in response.data.decode("utf-8")
-        assert "Video 6" in response.data.decode("utf-8")
-        assert "Video 7" in response.data.decode("utf-8")
-        assert "Video 8" in response.data.decode("utf-8")
-        assert "Video 9" in response.data.decode("utf-8")
+        for v_id in ids[5:]:
+            assert v_id in response.data.decode("utf-8")
 
     def test_about_page_load_correct(self):
         response = self.app.get("/about")

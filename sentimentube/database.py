@@ -19,6 +19,6 @@ def init_db():
     """
     Creates the database and its tables
     """
-    import models #pylint: disable=Unused-variable
-    BASE.metadata.create_all(bind=ENGINE)
+    import models  # pylint: disable=unused-import
+    base.metadata.create_all(bind=engine)
 init_db()
