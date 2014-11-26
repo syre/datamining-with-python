@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-""" kkk """
+""" Handling objects """
 import sqlalchemy
 from database import BASE
 
 
 class Comment(BASE):
+    """
+    Comment object
+    """
+
     __tablename__ = "comments"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.String, primary_key=True)
@@ -24,6 +28,9 @@ class Comment(BASE):
 
 
 class Video(BASE):
+    """
+    Video object
+    """
     __tablename__ = "videos"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.String, primary_key=True, nullable=False)
@@ -46,6 +53,9 @@ class Video(BASE):
 
 
 class VideoSentiment(BASE):
+    """
+    VideoSentiment object
+    """
     __tablename__ = "videosentiments"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.String,
@@ -62,6 +72,9 @@ class VideoSentiment(BASE):
 
 
 class CommentSentiment(BASE):
+    """
+    CommentSentiment object
+    """
     __tablename__ = "commentsentiments"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.String,
@@ -78,6 +91,9 @@ class CommentSentiment(BASE):
 
 
 class VideoCategory(BASE):
+    """
+    VideoCategory object
+    """
     __tablename__ = "videocategories"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.Integer,

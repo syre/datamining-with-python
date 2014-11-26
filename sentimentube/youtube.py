@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+This module scrapes/download contents from a youtube video
+"""
 import requests
 import dateutil.parser
 import logging
@@ -35,7 +38,7 @@ class YouTubeScraper:
         params = {"v": 2, "alt": "json", "max-results": 50,
                   "orderby": "published"}
 
-        while(True):
+        while True:
             if next_url:
                 try:
                     response = requests.get(next_url, params=params)
@@ -85,10 +88,10 @@ class YouTubeScraper:
         - list of Comment objects
         """
         comments = []
-        f = self._comment_generator(video_id)
+        fetch = self._comment_generator(video_id)
         while True:
             try:
-                comments += next(f)
+                comments += next(fetch)
                 if len(comments) > number and number > 0:
                     return comments[:number]
             except StopIteration:
@@ -144,5 +147,5 @@ class YouTubeScraper:
         return video, categories
 
 if __name__ == '__main__':
-    c = YouTubeScraper()
-    print(c.fetch_comments("wrong_url"))
+    you = YouTubeScraper()
+    print(you.fetch_comments("wrong_url"))

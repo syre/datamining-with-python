@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+Creating the web-application and handling the interacting between the user
+and the system
+"""
 import flask
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -15,12 +19,12 @@ import sentiment_analysis
 import youtube
 
 logging.basicConfig(format="%(asctime)s %(message)s", level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
-analyzer = sentiment_analysis.SentimentAnalysis("data/classifier.pickle")
-scraper = youtube.YouTubeScraper()
+ANALYZER = sentiment_analysis.SentimentAnalysis("data/classifier.pickle")
+SCRAPER = youtube.YouTubeScraper()
 
-app = flask.Flask(__name__)
+APP = flask.Flask(__name__)
 
 
 def save_sentiment(video_sentiment, comments_sentiment):
@@ -41,7 +45,7 @@ def save_sentiment(video_sentiment, comments_sentiment):
 
     db_videosentiment = database.DB_SESSION.query(
         models.VideoSentiment).filter(
-        models.VideoSentiment.id == video_sentiment.id).first()
+            models.VideoSentiment.id == video_sentiment.id).first()
 
     if db_videosentiment:
         db_videosentiment = video_sentiment
@@ -50,17 +54,17 @@ def save_sentiment(video_sentiment, comments_sentiment):
     database.DB_SESSION.commit()
 
 
-@app.route("/")
+@APP.route("/")
 def index():
     return flask.render_template("index.html")
 
 
-@app.route("/about")
+@APP.route("/about")
 def about():
     return flask.render_template("about.html")
 
 
-@app.route("/video")
+@APP.route("/video")
 def video():
     video_id = flask.request.args.get("video_id")
     # if in the form of an url, extract id
@@ -72,14 +76,14 @@ def video():
     db_video_info = database.DB_SESSION.query(models.Video).filter(
         models.Video.id == video_id).first()
     try:
-        video_info, categories = scraper.fetch_videoinfo(video_id)
+        video_info, categories = SCRAPER.fetch_videoinfo(video_id)
     except ValueError:
         return flask.render_template("error.html",
                                      error="invalid video id")
 
     if (db_video_info and
             db_video_info.num_of_comments == video_info.num_of_comments):
-        logger.info("sentiment for video with id:{} found in database"
+        LOGGER.info("sentiment for video with id:{} found in database"
                     .format(video_id))
 
         sentiment = database.DB_SESSION.query(models.VideoSentiment).filter(
@@ -88,14 +92,14 @@ def video():
         comments = database.DB_SESSION.query(models.Comment).filter(
             models.Comment.video_id == video_id).all()
     else:
-        logger.info("processing new video with id: {}".format(video_id))
+        LOGGER.info("processing new video with id: {}".format(video_id))
         if db_video_info:
             db_video_info = video_info
         else:
             database.DB_SESSION.add(video_info)
             database.DB_SESSION.add_all(categories)
 
-        comments = scraper.fetch_comments(video_id)
+        comments = SCRAPER.fetch_comments(video_id)
 
         # get unique comments only
         unique_ids = set([comment.id for comment in comments])
@@ -111,7 +115,7 @@ def video():
 
         database.DB_SESSION.commit()
 
-        sentiment, comment_sentiments = analyzer.classify_comments(comments)
+        sentiment, comment_sentiments = ANALYZER.classify_comments(comments)
 
     save_sentiment(sentiment, comment_sentiments)
     video = {"sentiment": sentiment, "video_info": video_info,
@@ -119,12 +123,12 @@ def video():
     return flask.render_template("video.html", video=video)
 
 
-@app.errorhandler(404)
+@APP.errorhandler(404)
 def not_found(error):
     return flask.render_template("error.html", error=error)
 
 
-@app.route("/previous")
+@APP.route("/previous")
 def previous():
     latest = database.DB_SESSION.query(models.Video).order_by(
         sqlalchemy.desc(models.Video.timestamp)).limit(5)
@@ -132,7 +136,7 @@ def previous():
     return flask.render_template("previous.html", latest=latest)
 
 
-@app.route("/comment_sentiment_plot.png")
+@APP.route("/comment_sentiment_plot.png")
 def comment_sentiment_plot():
     video_id = flask.request.args.get("video_id")
     fig = Figure(figsize=(5, 5))
@@ -159,7 +163,7 @@ def comment_sentiment_plot():
     return response
 
 
-@app.route("/video_sentiment_plot.png")
+@APP.route("/video_sentiment_plot.png")
 def video_sentiment_plot():
     video_id = flask.request.args.get("video_id")
     fig = Figure(figsize=(5, 5))
@@ -184,4 +188,4 @@ def video_sentiment_plot():
     return response
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    APP.run(debug=True)
