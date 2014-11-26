@@ -3,4 +3,4 @@ msg-template={path}|{msg_id}|{line},{column}|{msg}
 reports=no
 
 [Master]
-init-hook='import sys; import os; sys.path.append(os.path.dirname(__file__),"sentimentube")'
+init-hook='import sys; import os; sys.path.append(os.path.join(os.path.dirname(__file__),"sentimentube"))'
