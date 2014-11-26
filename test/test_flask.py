@@ -12,7 +12,7 @@ class WebServeTestCase(TestCase):
 
     def insert_rows(self, video_ids=["tkXr3uxM2fY"], positive_list=[True]):
         for video_index, v_id in enumerate(video_ids):
-            database.db_session.add(models.Video(id=v_id,
+            database.DB_SESSION.add(models.Video(id=v_id,
                                                  title="test title {}".
                                                  format(v_id),
                                                  author_id="test author {}"
@@ -28,12 +28,12 @@ class WebServeTestCase(TestCase):
                                                  num_of_comments=5,
                                                  timestamp=datetime.datetime
                                                  .now()))
-            database.db_session.add(models.VideoSentiment(id=v_id,
+            database.DB_SESSION.add(models.VideoSentiment(id=v_id,
                                                           n_pos=5.2,
                                                           n_neg=10.2,
                                                           result="negative"))
             for com_index, pos in enumerate(positive_list):
-                database.db_session.add(models.Comment(id="comment {} {}"
+                database.DB_SESSION.add(models.Comment(id="comment {} {}"
                                                        .format(video_index,
                                                                com_index),
                                                        video_id=v_id,
@@ -50,29 +50,29 @@ class WebServeTestCase(TestCase):
                                                        published=datetime
                                                        .datetime.now()))
 
-                database.db_session.add(models.CommentSentiment(id="comment {}"
+                database.DB_SESSION.add(models.CommentSentiment(id="comment {}"
                                                                    " {}"
                                                                 .format(
                                                                    video_index,
                                                                    com_index),
                                                                 video_id=v_id,
                                                                 positive=pos))
-        database.db_session.commit()
+        database.DB_SESSION.commit()
 
     def setUp(self):
         webserve.app.config["TESTING"] = True
         self.app = webserve.app.test_client()
-        database.engine = sqlalchemy.create_engine("sqlite://", echo=False)
-        database.db_session = \
+        database.ENGINE = sqlalchemy.create_engine("sqlite://", echo=False)
+        database.DB_SESSION = \
             sqlalchemy.orm.scoped_session(sqlalchemy.orm
                                           .sessionmaker(
                                               autocommit=False,
                                               autoflush=False,
-                                              bind=database.engine))
+                                              bind=database.ENGINE))
         database.init_db()
 
     def tearDown(self):
-        database.db_session.close()
+        database.DB_SESSION.close()
 
     def test_start_page_load_correct(self):
         response = self.app.get("/")
@@ -105,7 +105,7 @@ class WebServeTestCase(TestCase):
     def test_video_page_saves_video_in_db(self):
         id = "tkXr3uxM2fY"
         self.app.get("/video?video_id={}".format(id))
-        vid = database.db_session.query(models.Video).filter_by(id=id).first()
+        vid = database.DB_SESSION.query(models.Video).filter_by(id=id).first()
         assert vid
 
     def test_video_page_updates_sentiment_in_db(self):
@@ -113,12 +113,12 @@ class WebServeTestCase(TestCase):
         now = datetime.datetime.now()
         negative_score = 100
         positive_score = 100
-        database.db_session.add(models.VideoSentiment(id=id,
+        database.DB_SESSION.add(models.VideoSentiment(id=id,
                                                       n_neg=negative_score,
                                                       n_pos=positive_score,
                                                       result="test positive"))
 
-        database.db_session.add(models.Video(id=id, title="test title",
+        database.DB_SESSION.add(models.Video(id=id, title="test title",
                                              author_id="test author id",
                                              viewcount=1, duration=5, likes=1,
                                              published=now,
@@ -126,17 +126,17 @@ class WebServeTestCase(TestCase):
                                              num_of_raters=1,
                                              timestamp=now,
                                              num_of_comments=10))
-        database.db_session.add(models.Comment(id="comment {}".format(id),
+        database.DB_SESSION.add(models.Comment(id="comment {}".format(id),
                                                video_id=id,
                                                author_id="test author id",
                                                author_name="test author",
                                                content="test comment",
                                                published=now))
-        database.db_session.commit()
+        database.DB_SESSION.commit()
 
         self.app.get("/video?video_id={}".format(id))
 
-        sentiment = database.db_session.query(
+        sentiment = database.DB_SESSION.query(
             models.VideoSentiment).filter_by(id=id).first()
         assert sentiment.n_neg != negative_score
         assert sentiment.n_pos != positive_score
@@ -145,21 +145,21 @@ class WebServeTestCase(TestCase):
     def test_video_page_saves_comment_in_db(self):
         id = "tkXr3uxM2fY"
         self.app.get("/video?video_id={}".format(id))
-        comment = database.db_session.query(
+        comment = database.DB_SESSION.query(
             models.Comment).filter_by(video_id=id).first()
         assert comment
 
     def test_video_page_saves_commentsentiment_in_db(self):
         id = "tkXr3uxM2fY"
         self.app.get("/video?video_id={}".format(id))
-        sentiment = database.db_session.query(
+        sentiment = database.DB_SESSION.query(
             models.CommentSentiment).filter_by(video_id=id).first()
         assert sentiment
 
     def test_video_page_saves_videosentiment_in_db(self):
         id = "tkXr3uxM2fY"
         self.app.get("/video?video_id={}".format(id))
-        sentiment = database.db_session.query(
+        sentiment = database.DB_SESSION.query(
             models.VideoSentiment).filter_by(id=id).first()
         assert sentiment
 

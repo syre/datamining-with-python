@@ -31,23 +31,23 @@ def save_sentiment(video_sentiment, comments_sentiment):
     number of pos and neg comments (normalized) and final verdict of the video
     :param comments_sentiment: comments of the video with their sentiments
     """
-    db_sentiments = database.db_session.query(models.CommentSentiment).filter(
+    db_sentiments = database.DB_SESSION.query(models.CommentSentiment).filter(
         models.CommentSentiment.video_id == video_sentiment.id).all()
     db_comment_sentiment_ids = [db_comment.id for db_comment in db_sentiments]
 
     for comment_sentiment in comments_sentiment:
         if comment_sentiment.id not in db_comment_sentiment_ids:
-            database.db_session.add(comment_sentiment)
+            database.DB_SESSION.add(comment_sentiment)
 
-    db_videosentiment = database.db_session.query(
+    db_videosentiment = database.DB_SESSION.query(
         models.VideoSentiment).filter(
         models.VideoSentiment.id == video_sentiment.id).first()
 
     if db_videosentiment:
         db_videosentiment = video_sentiment
     else:
-        database.db_session.add(video_sentiment)
-    database.db_session.commit()
+        database.DB_SESSION.add(video_sentiment)
+    database.DB_SESSION.commit()
 
 
 @app.route("/")
@@ -69,7 +69,7 @@ def video():
         query = dict(urllib.parse.parse_qsl(url[4]))
         video_id = query["v"]
 
-    db_video_info = database.db_session.query(models.Video).filter(
+    db_video_info = database.DB_SESSION.query(models.Video).filter(
         models.Video.id == video_id).first()
     try:
         video_info, categories = scraper.fetch_videoinfo(video_id)
@@ -82,18 +82,18 @@ def video():
         logger.info("sentiment for video with id:{} found in database"
                     .format(video_id))
 
-        sentiment = database.db_session.query(models.VideoSentiment).filter(
+        sentiment = database.DB_SESSION.query(models.VideoSentiment).filter(
             models.VideoSentiment.id == video_id).first()
 
-        comments = database.db_session.query(models.Comment).filter(
+        comments = database.DB_SESSION.query(models.Comment).filter(
             models.Comment.video_id == video_id).all()
     else:
         logger.info("processing new video with id: {}".format(video_id))
         if db_video_info:
             db_video_info = video_info
         else:
-            database.db_session.add(video_info)
-            database.db_session.add_all(categories)
+            database.DB_SESSION.add(video_info)
+            database.DB_SESSION.add_all(categories)
 
         comments = scraper.fetch_comments(video_id)
 
@@ -103,13 +103,13 @@ def video():
                     for com_id in unique_ids]
 
         for comment in comments:
-            comment_in_db = database.db_session.query(models.Comment).filter(
+            comment_in_db = database.DB_SESSION.query(models.Comment).filter(
                 models.Comment.id == comment.id).first()
 
             if not comment_in_db:
-                database.db_session.add(comment)
+                database.DB_SESSION.add(comment)
 
-        database.db_session.commit()
+        database.DB_SESSION.commit()
 
         sentiment, comment_sentiments = analyzer.classify_comments(comments)
 
@@ -126,7 +126,7 @@ def not_found(error):
 
 @app.route("/previous")
 def previous():
-    latest = database.db_session.query(models.Video).order_by(
+    latest = database.DB_SESSION.query(models.Video).order_by(
         sqlalchemy.desc(models.Video.timestamp)).limit(5)
 
     return flask.render_template("previous.html", latest=latest)
@@ -139,7 +139,7 @@ def comment_sentiment_plot():
     axis = fig.add_subplot(1, 1, 1)
     fig.patch.set_alpha(0)
 
-    query = database.db_session.query(models.CommentSentiment).filter(
+    query = database.DB_SESSION.query(models.CommentSentiment).filter(
         models.CommentSentiment.video_id == video_id).all()
     positive = [q.positive for q in query if q.positive]
     negative = [q.positive for q in query if not q.positive]
@@ -166,9 +166,9 @@ def video_sentiment_plot():
     axis = fig.add_subplot(1, 1, 1)
     fig.patch.set_alpha(0)
 
-    videos = database.db_session.query(models.VideoSentiment).all()
+    videos = database.DB_SESSION.query(models.VideoSentiment).all()
 
-    current_video = database.db_session.query(models.VideoSentiment).filter(
+    current_video = database.DB_SESSION.query(models.VideoSentiment).filter(
         models.VideoSentiment.id == video_id).first()
 
     axis.plot([v.n_pos for v in videos], [v.n_neg for v in videos], "gx")
