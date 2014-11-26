@@ -97,7 +97,7 @@ def video():
             if not exists:
                 database.db_session.add(video_info)
                 database.db_session.add_all(categories)
-            
+
             # get unique comments only
             unique_ids = set([comment.id for comment in comments])
             comments = [next(com for com in comments if com.id == id) for id in unique_ids]
@@ -144,9 +144,9 @@ def comment_sentiment_plot():
     negative = [q.positive for q in query if not q.positive]
 
     if positive:
-        axis.hist(positive, color=["g"], align="left")
+        axis.hist(positive, color=["g"], align="left", bins=[0, 1])
     if negative:
-        axis.hist(negative, color=["r"], align="right")
+        axis.hist(negative, color=["r"], align="right", bins=[0, 1])
     axis.set_xticklabels(["positive", "negative"])
     axis.set_title("comment sentiment distribution")
     axis.set_ylabel("number of comments")

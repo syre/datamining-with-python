@@ -74,6 +74,7 @@ class WebServeTestCase(TestCase):
         response = self.app.get("/video?video_id=tkXr3uxM2fY")
         assert "Analysis of video with ID: tkXr3uxM2fY" in response.data.decode("utf-8")
 
+
     def test_video_page_comment_sentiment_plot_only_negative(self):
         self.insert_rows(positive_list=[False])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}".format("Video 1"))
