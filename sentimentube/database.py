@@ -21,4 +21,4 @@ def init_db():
     """
     import models  # pylint: disable=unused-import
     BASE.metadata.create_all(bind=ENGINE)
-init_db()
+#init_db()
