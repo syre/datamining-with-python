@@ -122,6 +122,7 @@ class YouTubeScraper:
         numraters = req["entry"]["gd$rating"]["numRaters"]
         likes = req["entry"]["yt$rating"]["numLikes"]
         dislikes = req["entry"]["yt$rating"]["numDislikes"]
+        num_of_comments = req["entry"]["gd$comments"]["gd$feedLink"]["countHint"]
         timestamp = datetime.datetime.now()
         categories = [models.VideoCategory(type=c["$t"], video_id=video_id)
                       for c in categories]
@@ -136,6 +137,7 @@ class YouTubeScraper:
                              num_of_raters=numraters,
                              likes=likes,
                              dislikes=dislikes,
+                             num_of_comments=num_of_comments,
                              timestamp=timestamp)
         return video, categories
 

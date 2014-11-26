@@ -35,6 +35,8 @@ class Video(base):
     rating = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
     num_of_raters = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     timestamp = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
+    num_of_comments = sqlalchemy.Column(sqlalchemy.Integer,
+                                             nullable=False)
 
     def __repr__(self):
         return "{}(id={}, title={}, author_id={})".format(
