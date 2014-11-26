@@ -32,7 +32,8 @@ class YouTubeScraper:
         - video_id : the id of the youtube video
         """
         next_url = self.comment_url.format(video_id)
-        params = {"v": 2, "alt": "json", "max-results": 50, "orderby": "published"}
+        params = {"v": 2, "alt": "json", "max-results": 50,
+                  "orderby": "published"}
 
         while(True):
             if next_url:
@@ -85,7 +86,7 @@ class YouTubeScraper:
         """
         comments = []
         f = self._comment_generator(video_id)
-        while(True):
+        while True:
             try:
                 comments += next(f)
                 if len(comments) > number and number > 0:

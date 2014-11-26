@@ -46,7 +46,7 @@ def save_sentiment(video_sentiment, comments_sentiment):
     if db_videosentiment:
         video_sentiment_db = database.db_session.query(
             models.VideoSentiment).filter(
-            models.VideoSentiment.id == video_sentiment.id).first()
+                models.VideoSentiment.id == video_sentiment.id).first()
         video_sentiment_db.result = video_sentiment.result
     else:
         database.db_session.add(video_sentiment)
@@ -61,6 +61,7 @@ def index():
 @app.route("/about")
 def about():
     return flask.render_template("about.html")
+
 
 @app.route("/video")
 def video():
@@ -100,7 +101,8 @@ def video():
 
             # get unique comments only
             unique_ids = set([comment.id for comment in comments])
-            comments = [next(com for com in comments if com.id == id) for id in unique_ids]
+            comments = [next(com for com in comments if com.id == com_id)
+                        for com_id in unique_ids]
 
             for comment in comments:
                 exists = database.db_session.query(models.Comment).filter(
