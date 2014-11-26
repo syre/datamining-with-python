@@ -46,3 +46,14 @@ class TestCodeFormat(unittest.TestCase):
                 for error in errors:
                     print(error)
                 self.assertTrue(False, msg="pylint fail")
+
+    def test_pyflakes_compliance(self):
+        cmd = ["pyflakes", "sentimentube", "test"]
+        try:
+            subprocess.check_output(cmd, universal_newlines=True)
+        except subprocess.CalledProcessError as e:
+            errors = e.output.split("\n")
+            if errors:
+                for error in errors:
+                    print(error)
+                self.assertTrue(False, msg="pyflakes fail")
