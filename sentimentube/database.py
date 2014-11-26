@@ -12,6 +12,6 @@ base = declarative_base()
 
 
 def init_db():
-    import models
+    import models  # pylint: disable=unused-import
     base.metadata.create_all(bind=engine)
 init_db()
