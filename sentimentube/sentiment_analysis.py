@@ -41,8 +41,8 @@ class SentimentAnalysis:
         negids = movie_reviews.fileids('neg')
         posids = movie_reviews.fileids('pos')
 
-        negfeats = [(self.word_feats_extractor(movie_reviews.words(fileids=[f])), 'neg') for f in negids]
-        posfeats = [(self.word_feats_extractor(movie_reviews.words(fileids=[f])), 'pos') for f in posids]
+        negfeats = [(self._word_feats_extractor(movie_reviews.words(fileids=[f])), 'neg') for f in negids]
+        posfeats = [(self._word_feats_extractor(movie_reviews.words(fileids=[f])), 'pos') for f in posids]
 
         negcutoff = int(len(negfeats) * 3 / 4)
         poscutoff = int(len(posfeats) * 3 / 4)
@@ -77,7 +77,7 @@ class SentimentAnalysis:
         except FileExistsError:
             self.logger.error("I/O error: file not found")
             self.logger.info("Will train a classifier")
-            self.train()
+            self._train()
 
     def _compare_comments_number(self, video_id, n_comments):
         """
@@ -108,7 +108,7 @@ class SentimentAnalysis:
         """
         video_sentiment = models.VideoSentiment(id=comments[0].video_id, n_pos=0, n_neg=0, result="")
         #the line below doesn't work do to normalization! A fix is needed!
-        result = self.compare_comments_number(comments[0].video_id, len(comments))
+        result = self._compare_comments_number(comments[0].video_id, len(comments))
         if result:
             self.logger.info("Last sentiment analysis were done on the same number of as we have now. "
                              "So no reason to make sentiment")
@@ -117,7 +117,7 @@ class SentimentAnalysis:
                 "Their is a change in comments. We do sentiment analysis")
             comments_sentiment = []
             for comment in comments:
-                res = self.classifier.classify(self.word_feats_extractor(comment.content.split()))
+                res = self.classifier.classify(self._word_feats_extractor(comment.content.split()))
 
                 if res == "pos":
                     video_sentiment.n_pos += 1
@@ -137,7 +137,7 @@ class SentimentAnalysis:
             self.logger.debug("Number of negative comments after normalization: {0}".format(video_sentiment.n_neg))
             self.logger.debug("Number of positive comments after normalization: {0}".format(video_sentiment.n_pos))
 
-            video_sentiment.result = self.eval(video_sentiment)
+            video_sentiment.result = self._eval(video_sentiment)
             self.logger.info("The result of the video: {0}".format(video_sentiment.result))
             return video_sentiment, comments_sentiment
 
@@ -150,7 +150,7 @@ class SentimentAnalysis:
             -   nPos >= 0.4 and nPos < 0.6:     Neutral
             -   nPos >= 0.6 ann nPos < 0.75:    Slight positive
             -   nPos >= 0.75:   Strong positive
-        :param clusters:
+        :param video_sentiment:
         :return:
         """
         if video_sentiment.n_pos < .25:
