@@ -14,14 +14,11 @@ class SentimentAnalysisTestCase(TestCase):
 
     @mock.patch("sentiment_analysis.SentimentAnalysis._train")
     @mock.patch("sentiment_analysis.SentimentAnalysis.load_classifier")
-    #@mock.patch("youtube.SentimentAnalysis.load_classifier",
-    # return_value="loaded")
     @mock.patch("nltk.data.load")
     def test_load_classifier(self, train, load_classifier, load_data):
         sa = sentiment_analysis.SentimentAnalysis("data/classifier.pickle")
         train.assert_called()
 
-    #@mock.patch("classifier.classify", return_value=control)
     def test_classify_comments(self):
         comments = []
         static_comments = ["I love you!", "I hate you!",

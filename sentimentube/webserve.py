@@ -115,7 +115,7 @@ def video():
         save_sentiment(sentiment, comment_sentiments)
 
     video = {"sentiment": sentiment, "video_info": video_info,
-         "num_of_comments": len(comments)}
+             "num_of_comments": len(comments)}
     return flask.render_template("video.html", video=video)
 
 

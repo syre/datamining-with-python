@@ -64,14 +64,12 @@ class WebServeTestCase(TestCase):
         webserve.app.config["TESTING"] = True
         self.app = webserve.app.test_client()
         database.engine = sqlalchemy.create_engine("sqlite://", echo=False)
-        database.db_session = sqlalchemy.orm.scoped_session(sqlalchemy.orm
-                                                            .sessionmaker(
-                                                                autocommit=
-                                                                False,
-                                                                autoflush=
-                                                                False,
-                                                                bind=database
-                                                                .engine))
+        database.db_session = \
+            sqlalchemy.orm.scoped_session(sqlalchemy.orm
+                                          .sessionmaker(
+                                              autocommit=False,
+                                              autoflush=False,
+                                              bind=database.engine))
         database.init_db()
 
     def tearDown(self):
@@ -103,7 +101,8 @@ class WebServeTestCase(TestCase):
     def test_video_page_load_correct_from_youtube(self):
         id = "tkXr3uxM2fY"
         response = self.app.get("/video?video_id={}".format(id))
-        assert "Analysis of video with ID: {}".format(id) in response.data.decode("utf-8")
+        assert "Analysis of video with ID: {}".format(id) in \
+               response.data.decode("utf-8")
 
     def test_video_page_saves_video_in_db(self):
         id = "tkXr3uxM2fY"

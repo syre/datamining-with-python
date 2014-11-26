@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+""" kkk """
 import sqlalchemy
-from database import base
+from database import BASE
 
 
-class Comment(base):
+class Comment(BASE):
     __tablename__ = "comments"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.String, primary_key=True)
@@ -21,7 +23,7 @@ class Comment(base):
             self.content)
 
 
-class Video(base):
+class Video(BASE):
     __tablename__ = "videos"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.String, primary_key=True, nullable=False)
@@ -36,14 +38,14 @@ class Video(base):
     num_of_raters = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     timestamp = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
     num_of_comments = sqlalchemy.Column(sqlalchemy.Integer,
-                                             nullable=False)
+                                        nullable=False)
 
     def __repr__(self):
         return "{}(id={}, title={}, author_id={})".format(
             self.__class__.__name__, self.id, self.title, self.author_id)
 
 
-class VideoSentiment(base):
+class VideoSentiment(BASE):
     __tablename__ = "videosentiments"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.String,
@@ -59,7 +61,7 @@ class VideoSentiment(base):
             self.result)
 
 
-class CommentSentiment(base):
+class CommentSentiment(BASE):
     __tablename__ = "commentsentiments"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.String,
@@ -75,7 +77,7 @@ class CommentSentiment(base):
             self.__class__.__name__, self.id, self.video_id, self.positive)
 
 
-class VideoCategory(base):
+class VideoCategory(BASE):
     __tablename__ = "videocategories"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.Integer,
