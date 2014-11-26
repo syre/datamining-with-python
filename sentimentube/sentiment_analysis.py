@@ -32,17 +32,18 @@ class SentimentAnalysis:
         """
         return dict([(word, True) for word in words])
 
-    def _train(self, file_name):
+    def _train(self):
         """
         Training the Naïve Bayes classifier
-        :param file_name: Filename of which the classifier should be saved as
         """
 
         negids = movie_reviews.fileids('neg')
         posids = movie_reviews.fileids('pos')
 
-        negfeats = [(self._word_feats_extractor(movie_reviews.words(fileids=[f])), 'neg') for f in negids]
-        posfeats = [(self._word_feats_extractor(movie_reviews.words(fileids=[f])), 'pos') for f in posids]
+        negfeats = [(self._word_feats_extractor(
+            movie_reviews.words(fileids=[f])), 'neg') for f in negids]
+        posfeats = [(self._word_feats_extractor(
+            movie_reviews.words(fileids=[f])), 'pos') for f in posids]
 
         negcutoff = int(len(negfeats) * 3 / 4)
         poscutoff = int(len(posfeats) * 3 / 4)
@@ -68,82 +69,70 @@ class SentimentAnalysis:
 
     def load_classifier(self):
         """
-        Loading a trained classifier from file. If it fails, it's training a new
-        :param: filepath: Filepath of the file which should be loaded as classifier
+        Loading a trained classifier from file.
+        If it fails, it's training a new
         """
         try:
-            self.classifier = nltk.data.load("file:"+self.file_path, 'pickle', 1)
+            self.classifier = nltk.data.load(
+                "file:"+self.file_path, 'pickle', 1)
             self.logger.info("Classifier loaded!")
         except FileExistsError:
             self.logger.error("I/O error: file not found")
             self.logger.info("Will train a classifier")
             self._train()
 
-    def _compare_comments_number(self, video_id, n_comments):
-        """
-        WARNING: This method doesn't work do to normalization. Need a fix!
-        Checks if the video has been analysed before. If so, it checks if there has been posted new comments since last
-        time, by comparing number of comments (database vs. video). If there are are a change, it return False,
-        True otherwise
-        :param video_id: The ID of the video
-        :param n_comments: number of comment of the video. The number is from Youtube
-        :return: Boolean
-        """
-        db_res = database.db_session.query(models.VideoSentiment).filter(
-            models.VideoSentiment.id == video_id).first()
-        if not db_res:
-            return False
-        else:
-            if (db_res.n_pos + db_res.n_neg) == n_comments:
-                return True
-            else:
-                return False
-
     def classify_comments(self, comments):
         """
-        Classifying a youtube-videos comments, by classify each comments and let the method 'eval' make a decision
-        It normalize the ratio between number of positive and negative comments, before calling the 'eval' method
-        :param video_id: The ID of youtube-video
+        Classifying a youtube-videos comments, by classify each comments
+        and let the method 'eval' make a decision
+        It normalize the ratio between number of positive and negative comments
+        before calling the 'eval' method
+        :param comments: The comments of youtube-video
         :return:
         """
-        video_sentiment = models.VideoSentiment(id=comments[0].video_id, n_pos=0, n_neg=0, result="")
-        #the line below doesn't work do to normalization! A fix is needed!
-        result = self._compare_comments_number(comments[0].video_id, len(comments))
-        if result:
-            self.logger.info("Last sentiment analysis were done on the same number of as we have now. "
-                             "So no reason to make sentiment")
-        else:
-            self.logger.info(
-                "Their is a change in comments. We do sentiment analysis")
-            comments_sentiment = []
-            for comment in comments:
-                res = self.classifier.classify(self._word_feats_extractor(comment.content.split()))
+        video_sentiment = models.VideoSentiment(id=comments[0].video_id,
+                                                n_pos=0, n_neg=0, result="")
 
-                if res == "pos":
-                    video_sentiment.n_pos += 1
-                    comments_sentiment.append(models.CommentSentiment(id=comment.id, video_id=comment.video_id,
-                                                                      positive=1))
-                else:
-                    video_sentiment.n_neg += 1
-                    comments_sentiment.append(models.CommentSentiment(id=comment.id, video_id=comment.video_id,
-                                                                      positive=0))
+        self.logger.info(
+            "Their is a change in comments. We do sentiment analysis")
+        comments_sentiment = []
+        for comment in comments:
+            res = self.classifier.classify(self._word_feats_extractor(
+                comment.content.split()))
 
-            total_data = video_sentiment.n_pos + video_sentiment.n_neg
-            self.logger.debug("Number of negative comments: {0}".format(video_sentiment.n_neg))
-            self.logger.debug("Number of positive comments: {0}".format(video_sentiment.n_pos))
+            if res == "pos":
+                video_sentiment.n_pos += 1
+                comments_sentiment.append(models.CommentSentiment(
+                    id=comment.id, video_id=comment.video_id, positive=1))
+            else:
+                video_sentiment.n_neg += 1
+                comments_sentiment.append(models.CommentSentiment(
+                    id=comment.id, video_id=comment.video_id, positive=0))
 
-            video_sentiment.n_pos /= total_data
-            video_sentiment.n_neg /= total_data
-            self.logger.debug("Number of negative comments after normalization: {0}".format(video_sentiment.n_neg))
-            self.logger.debug("Number of positive comments after normalization: {0}".format(video_sentiment.n_pos))
+        total_data = video_sentiment.n_pos + video_sentiment.n_neg
+        self.logger.debug("Number of negative comments: {0}".format(
+            video_sentiment.n_neg))
+        self.logger.debug("Number of positive comments: {0}".format(
+            video_sentiment.n_pos))
 
-            video_sentiment.result = self._eval(video_sentiment)
-            self.logger.info("The result of the video: {0}".format(video_sentiment.result))
-            return video_sentiment, comments_sentiment
+        video_sentiment.n_pos /= total_data
+        video_sentiment.n_neg /= total_data
+        self.logger.debug("Number of negative comments after "
+                          "normalization: {0}"
+                          .format(video_sentiment.n_neg))
+        self.logger.debug(
+            "Number of positive comments after normalization: {0}".format(
+                video_sentiment.n_pos))
+
+        video_sentiment.result = self._eval(video_sentiment)
+        self.logger.info("The result of the video: {0}".format(
+            video_sentiment.result))
+        return video_sentiment, comments_sentiment
 
     def _eval(self, video_sentiment):
         """
-        Taking a decision of the whole youtube-video based on the ratio between positive and negative comments
+        Taking a decision of the whole youtube-video based on the ratio
+        between positive and negative comments
         It takes a decision like so, based on number positive comments (nPos):
             -   nPos <0.25:     Strong negative
             -   nPos >= 0.25 and nPos < 0.4:    Slight negative

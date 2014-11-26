@@ -59,6 +59,7 @@ def index():
 def about():
     return flask.render_template("about.html")
 
+
 @app.route("/video")
 def video():
     video_id = flask.request.args.get("video_id")
@@ -98,7 +99,8 @@ def video():
 
         # get unique comments only
         unique_ids = set([comment.id for comment in comments])
-        comments = [next(com for com in comments if com.id == id) for id in unique_ids]
+        comments = [next(com for com in comments if com.id == com_id)
+                    for com_id in unique_ids]
 
         for comment in comments:
             comment_in_db = db_session.query(models.Comment).filter(

@@ -19,7 +19,8 @@ test_list = ["test_flask.py",
              "test_youtube.py"]
 
 cwd = os.path.dirname(__file__)
-source_paths = [os.path.join(cwd, os.pardir, "sentimentube", pyfile) for pyfile in source_list]
+source_paths = [os.path.join(cwd, os.pardir, "sentimentube", pyfile)
+                for pyfile in source_list]
 test_paths = [os.path.join(cwd, pyfile) for pyfile in test_list]
 full_paths = source_paths+test_paths
 
@@ -33,12 +34,15 @@ class TestCodeFormat(unittest.TestCase):
                          "Found code style errors (and warnings).")
 
     def test_pylint_compliance(self):
-        cmd = ["pylint", "--rcfile={}".format(os.path.join(cwd, os.pardir, "pylint.rc")), "sentimentube"]
+        cmd = ["pylint", "--rcfile={}".format(os.path.join(cwd, os.pardir,
+                                                           "pylint.rc")),
+               "sentimentube"]
         try:
             subprocess.check_output(cmd, universal_newlines=True)
         except subprocess.CalledProcessError as e:
-            errors = [line for line in e.output.split("\n") if not line.startswith("*")]
+            errors = [line for line in e.output.split("\n")
+                      if not line.startswith("*")]
             if errors:
                 for error in errors:
                     print(error)
-                self.assertTrue(False,msg="pylint fail")
+                self.assertTrue(False, msg="pylint fail")
