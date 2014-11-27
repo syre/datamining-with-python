@@ -55,6 +55,8 @@ class YouTubeScraper:
             else:
                 raise StopIteration
             comments = []
+            if "entry" not in response["feed"]:
+                raise RuntimeError("no comments for video")
             for comment in response["feed"]["entry"]:
                 author_name = comment["author"][0]["name"]["$t"]
                 author_id = comment["author"][0]["yt$userId"]["$t"]
@@ -121,18 +123,29 @@ class YouTubeScraper:
 
         if comment_permission == "denied":
             self.logger.error("fetch_videoinfo: comments disallowed for video")
+
             raise RuntimeError("Comments disallowed for video".format(
                 video_id))
+
+        if "gd$rating" in req["entry"]:
+            rating = req["entry"]["gd$rating"]["average"]
+            numraters = req["entry"]["gd$rating"]["numRaters"]
+        else:
+            rating = None
+            numraters = None
+        if "yt$rating" in req["entry"]:
+            likes = req["entry"]["yt$rating"]["numLikes"]
+            dislikes = req["entry"]["yt$rating"]["numDislikes"]
+        else:
+            likes = None
+            dislikes = None
+
         title = req["entry"]["title"]["$t"]
         author_id = req["entry"]["author"][0]["yt$userId"]["$t"]
-        rating = req["entry"]["gd$rating"]["average"]
         viewcount = int(req["entry"]["yt$statistics"]["viewCount"])
         duration = req["entry"]["media$group"]["media$content"][0]["duration"]
         categories = req["entry"]["media$group"]["media$category"]
         published = dateutil.parser.parse(req["entry"]["published"]["$t"])
-        numraters = req["entry"]["gd$rating"]["numRaters"]
-        likes = req["entry"]["yt$rating"]["numLikes"]
-        dislikes = req["entry"]["yt$rating"]["numDislikes"]
         num_of_comments = \
             req["entry"]["gd$comments"]["gd$feedLink"]["countHint"]
         timestamp = datetime.datetime.now()

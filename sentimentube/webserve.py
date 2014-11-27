@@ -116,8 +116,10 @@ def video():
         else:
             database.DB_SESSION.add(video_info)
             database.DB_SESSION.add_all(categories)
-
-        comments = SCRAPER.fetch_comments(video_id)
+        try:
+            comments = SCRAPER.fetch_comments(video_id)
+        except RuntimeError as e:
+            return flask.render_template("error.html", error=str(e))
 
         # get unique comments only
         unique_ids = set([comment.id for comment in comments])
@@ -135,7 +137,7 @@ def video():
 
         sentiment, comment_sentiments = ANALYZER.classify_comments(comments)
 
-    save_sentiment(sentiment, comment_sentiments)
+        save_sentiment(sentiment, comment_sentiments)
     video = {"sentiment": sentiment, "video_info": video_info,
              "num_of_comments": len(comments)}
     return flask.render_template("video.html", video=video)
