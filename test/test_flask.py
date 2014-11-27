@@ -17,7 +17,8 @@ class WebServeTestCase(TestCase):
     """
     Class to test webserve module
     """
-    def insert_rows(self, video_ids=["tkXr3uxM2fY"], positive_list=[True]):
+    @staticmethod
+    def insert_rows(video_ids=["tkXr3uxM2fY"], positive_list=[True]):
         """
             helper method for inserting test rows in the database
         """

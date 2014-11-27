@@ -19,11 +19,12 @@ import pickle
 import os
 import logging
 import models
-import database
 
 
 class SentimentAnalysis:
-    """Class for making sentiment analysis of video comments"""
+    """
+    Class for making sentiment analysis of video comments
+    """
 
     def __init__(self, file_name):
         """
@@ -34,7 +35,8 @@ class SentimentAnalysis:
         self.file_path = os.path.join(os.path.dirname(__file__), file_name)
         self.classifier = self.load_classifier()
 
-    def _word_feats_extractor(self, words):
+    @staticmethod
+    def _word_feats_extractor(words):
         """
         Extract features from corpus
         :param words: List of words from corpus
@@ -140,7 +142,8 @@ class SentimentAnalysis:
                          video_sentiment.result)
         return video_sentiment, comments_sentiment
 
-    def _eval(self, video_sentiment):
+    @staticmethod
+    def _eval(video_sentiment):
         """
         Taking a decision of the whole youtube-video based on the ratio
         between positive and negative comments

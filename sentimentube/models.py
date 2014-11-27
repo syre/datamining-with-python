@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# pylint: disable=W0232, R0903
+
 """ Handling objects """
 import sqlalchemy
 from database import BASE

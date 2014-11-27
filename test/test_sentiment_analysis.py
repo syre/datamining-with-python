@@ -19,10 +19,11 @@ class SentimentAnalysisTestCase(TestCase):
     #     self.sa = sentiment_analysis.SentimentAnalysis(
     #         "data/classifier.pickle")
 
+    @staticmethod
     @mock.patch("sentiment_analysis.SentimentAnalysis._train")
     @mock.patch("sentiment_analysis.SentimentAnalysis.load_classifier")
     @mock.patch("nltk.data.load")
-    def test_load_classifier(self, train, load_classifier, load_data):
+    def test_load_classifier(train, load_classifier, load_data):
         """
         Test the load_classifier method
         :param train:
@@ -31,9 +32,12 @@ class SentimentAnalysisTestCase(TestCase):
         :return:
         """
         sentiment_analysis.SentimentAnalysis("data/classifier.pickle")
-        train.assert_called()
+        load_classifier.assert_called()
+        load_data.return_value = True
+        train.assert_not_called()
 
-    def test_classify_comments(self):
+    @staticmethod
+    def test_classify_comments():
         """
         Test the classify_comment method in "sentiment_analysis"
         """
@@ -57,7 +61,8 @@ class SentimentAnalysisTestCase(TestCase):
         assert video_sentiment.n_pos == 0.5
         assert video_sentiment.n_neg == 0.5
 
-    def test_eval(self):
+    @staticmethod
+    def test_eval():
         """
         Test the eval method in "sentiment_analysis"
         """
@@ -86,7 +91,8 @@ class SentimentAnalysisTestCase(TestCase):
                                            "strong positive",
                                            "strong positive"]
 
-    def test_training(self):
+    @staticmethod
+    def test_training():
         """
         This method test the train method in "sentiment_analysis"
         """
@@ -95,10 +101,11 @@ class SentimentAnalysisTestCase(TestCase):
         sa.load_classifier()
         assert sa.classifier is not None
 
+    @staticmethod
     @mock.patch("nltk.data.load")
     @mock.patch("sentiment_analysis.SentimentAnalysis._train")
     @mock.patch("logging.Logger")
-    def test_load_wrong_file(self, nltk_load, train, logger):
+    def test_load_wrong_file(nltk_load, train, logger):
         """
         Test load method (sentiment_analysis), with wrong file-name
         (or the file doesn't exist)
