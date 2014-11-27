@@ -65,7 +65,8 @@ class WebServeTestCase(TestCase):
     def setUp(self):
         """
         set up method, running before
-        each test
+        each test, sets up an in-memory sqlite database
+        for use as test database
         """
         webserve.APP.config["TESTING"] = True
         self.app = webserve.APP.test_client()
@@ -81,7 +82,7 @@ class WebServeTestCase(TestCase):
     def tearDown(self):
         """
         tear down method, running after
-        each test
+        each test, closes the session
         """
         database.DB_SESSION.close()
 
