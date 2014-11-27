@@ -112,21 +112,23 @@ input[type=submit]:active {
     width: 20%;
   }
 }
+}
 
 #squaresWaveG{
 position:relative;
-width:240px;
-height:29px;
+width:500px;
+height:10px;
 margin-left: auto;
 margin-right: auto;
-visibility: hidden;}
+visibility: hidden;
+}
 
 .squaresWaveG{
 position:absolute;
 top:0;
-background-color:#FF0000;
-width:29px;
-height:29px;
+background-color:#36B317;
+width:60px;
+height:10px;
 -moz-animation-name:bounce_squaresWaveG;
 -moz-animation-duration:1.3s;
 -moz-animation-iteration-count:infinite;
@@ -159,7 +161,7 @@ animation-delay:0.52s;
 }
 
 #squaresWaveG_2{
-left:30px;
+left:61px;
 -moz-animation-delay:0.65s;
 -webkit-animation-delay:0.65s;
 -ms-animation-delay:0.65s;
@@ -168,7 +170,7 @@ animation-delay:0.65s;
 }
 
 #squaresWaveG_3{
-left:60px;
+left:122px;
 -moz-animation-delay:0.78s;
 -webkit-animation-delay:0.78s;
 -ms-animation-delay:0.78s;
@@ -177,7 +179,7 @@ animation-delay:0.78s;
 }
 
 #squaresWaveG_4{
-left:90px;
+left:183px;
 -moz-animation-delay:0.91s;
 -webkit-animation-delay:0.91s;
 -ms-animation-delay:0.91s;
@@ -186,7 +188,7 @@ animation-delay:0.91s;
 }
 
 #squaresWaveG_5{
-left:120px;
+left:244px;
 -moz-animation-delay:1.04s;
 -webkit-animation-delay:1.04s;
 -ms-animation-delay:1.04s;
@@ -195,7 +197,7 @@ animation-delay:1.04s;
 }
 
 #squaresWaveG_6{
-left:150px;
+left:305px;
 -moz-animation-delay:1.17s;
 -webkit-animation-delay:1.17s;
 -ms-animation-delay:1.17s;
@@ -204,7 +206,7 @@ animation-delay:1.17s;
 }
 
 #squaresWaveG_7{
-left:180px;
+left:366px;
 -moz-animation-delay:1.3s;
 -webkit-animation-delay:1.3s;
 -ms-animation-delay:1.3s;
@@ -213,7 +215,7 @@ animation-delay:1.3s;
 }
 
 #squaresWaveG_8{
-left:210px;
+left:427px;
 -moz-animation-delay:1.43s;
 -webkit-animation-delay:1.43s;
 -ms-animation-delay:1.43s;
@@ -223,57 +225,55 @@ animation-delay:1.43s;
 
 @-moz-keyframes bounce_squaresWaveG{
 0%{
-background-color:#FF0000;
+background-color:#36B317;
 }
 
 100%{
-background-color:#00FF77;
+background-color:#D14343;
 }
 
 }
 
 @-webkit-keyframes bounce_squaresWaveG{
 0%{
-background-color:#FF0000;
+background-color:#36B317;
 }
 
 100%{
-background-color:#00FF77;
+background-color:#D14343;
 }
 
 }
 
 @-ms-keyframes bounce_squaresWaveG{
 0%{
-background-color:#FF0000;
+background-color:#36B317;
 }
 
 100%{
-background-color:#00FF77;
+background-color:#D14343;
 }
 
 }
 
 @-o-keyframes bounce_squaresWaveG{
 0%{
-background-color:#FF0000;
+background-color:#36B317;
 }
 
 100%{
-background-color:#00FF77;
+background-color:#D14343;
 }
 
 }
 
 @keyframes bounce_squaresWaveG{
 0%{
-background-color:#FF0000;
+background-color:#36B317;
 }
 
 100%{
-background-color:#00FF77;
-}
-
+background-color:#D14343;
 }
 
 }
