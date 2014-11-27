@@ -30,7 +30,7 @@ class SentimentAnalysisTestCase(TestCase):
         :param load_data:
         :return:
         """
-        sa = sentiment_analysis.SentimentAnalysis("data/classifier.pickle")
+        sentiment_analysis.SentimentAnalysis("data/classifier.pickle")
         train.assert_called()
 
     def test_classify_comments(self):
@@ -110,7 +110,7 @@ class SentimentAnalysisTestCase(TestCase):
         """
         nltk_load.side_effect = (FileExistsError, LookupError)
 
-        sa_test_load = sentiment_analysis.SentimentAnalysis(
+        sentiment_analysis.SentimentAnalysis(
             "data/hello_hello.pickle")
 
         logger.assert_called()

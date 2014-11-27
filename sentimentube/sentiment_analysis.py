@@ -57,8 +57,8 @@ class SentimentAnalysis:
 
         negcutoff = int(len(negfeats) * 3 / 4)
         poscutoff = int(len(posfeats) * 3 / 4)
-        self.logger.debug("Number of negative features: %d" % negcutoff)
-        self.logger.debug("Number of positive features: %d" % poscutoff)
+        self.logger.debug("Number of negative features: %d", negcutoff)
+        self.logger.debug("Number of positive features: %d", poscutoff)
         trainfeats = negfeats[:negcutoff] + posfeats[:poscutoff]
 
         classifier = NaiveBayesClassifier.train(trainfeats)
@@ -122,21 +122,21 @@ class SentimentAnalysis:
                     id=comment.id, video_id=comment.video_id, positive=0))
 
         total_data = video_sentiment.n_pos + video_sentiment.n_neg
-        self.logger.debug("Number of negative comments: %d" %
+        self.logger.debug("Number of negative comments: %d",
                           video_sentiment.n_neg)
-        self.logger.debug("Number of positive comments: %d" %
+        self.logger.debug("Number of positive comments: %d",
                           video_sentiment.n_pos)
 
         video_sentiment.n_pos /= total_data
         video_sentiment.n_neg /= total_data
         self.logger.debug("Number of negative comments after "
-                          "normalization: %.2f" % video_sentiment.n_neg)
+                          "normalization: %.2f", video_sentiment.n_neg)
         self.logger.debug(
-            "Number of positive comments after normalization: %.2f" %
+            "Number of positive comments after normalization: %.2f",
             video_sentiment.n_pos)
 
         video_sentiment.result = self._eval(video_sentiment)
-        self.logger.info("The result of the video: %s" %
+        self.logger.info("The result of the video: %s",
                          video_sentiment.result)
         return video_sentiment, comments_sentiment
 

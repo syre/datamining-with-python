@@ -96,13 +96,13 @@ def video():
     except ValueError:
         return flask.render_template("error.html",
                                      error="invalid video id")
-    except RuntimeError as e:
-        return flask.render_template("error.html", error=str(e))
+    except RuntimeError as err:
+        return flask.render_template("error.html", error=str(err))
 
     if (db_video_info and
             db_video_info.num_of_comments == video_info.num_of_comments):
-        LOGGER.info("sentiment for video with id:{} found in database"
-                    .format(video_id))
+        LOGGER.info("sentiment for video with id: %r found in database",
+                    video_id)
 
         sentiment = database.DB_SESSION.query(models.VideoSentiment).filter(
             models.VideoSentiment.id == video_id).first()
@@ -110,7 +110,7 @@ def video():
         comments = database.DB_SESSION.query(models.Comment).filter(
             models.Comment.video_id == video_id).all()
     else:
-        LOGGER.info("processing new video with id: {}".format(video_id))
+        LOGGER.info("processing new video with id: %r", video_id)
         if db_video_info:
             db_video_info = database.DB_SESSION.merge(video_info)
         else:
@@ -118,8 +118,8 @@ def video():
             database.DB_SESSION.add_all(categories)
         try:
             comments = SCRAPER.fetch_comments(video_id)
-        except RuntimeError as e:
-            return flask.render_template("error.html", error=str(e))
+        except RuntimeError as err:
+            return flask.render_template("error.html", error=str(err))
 
         # get unique comments only
         unique_ids = set([comment.id for comment in comments])
