@@ -3,16 +3,13 @@
 
 """
 This module test the other module using some test methods:
- - PEP8
+ - Flake8
  - Unittest
  - Pylint
- - Pyflakes
 
  The Unittest is defined individually in modules pr. modules wanted to be
  tested
 """
-
-import pep8
 import unittest
 import os
 import subprocess
@@ -40,15 +37,6 @@ class TestCodeFormat(unittest.TestCase):
     """
     Creating, listing and running tests
     """
-    def test_pep8_compliance(self):
-        """
-        Test the modules for PEP8 violations
-        """
-        pep8style = pep8.StyleGuide()
-        result = pep8style.check_files(FULL_PATHS)
-        self.assertEqual(result.total_errors, 0,
-                         "Found code style errors (and warnings).")
-
     def test_pylint_compliance(self):
         """
         Test the modules for pylint violations
@@ -67,12 +55,12 @@ class TestCodeFormat(unittest.TestCase):
                     print(error)
                 self.assertTrue(False, msg="pylint fail")
 
-    def test_pyflakes_compliance(self):
+    def test_flake8_compliance(self):
         """
         Test the modules for pyflakes violations
         :return:
         """
-        cmd = ["pyflakes", "sentimentube", "test"]
+        cmd = ["flake8", "sentimentube", "test"]
         try:
             subprocess.check_output(cmd, universal_newlines=True)
         except subprocess.CalledProcessError as err:
@@ -80,4 +68,4 @@ class TestCodeFormat(unittest.TestCase):
             if errors:
                 for error in errors:
                     print(error)
-                self.assertTrue(False, msg="pyflakes fail")
+                self.assertTrue(False, msg="flake8 fail")
