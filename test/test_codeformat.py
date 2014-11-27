@@ -37,7 +37,9 @@ FULL_PATHS = SOURCE_PATHS+TEST_PATHS
 
 
 class TestCodeFormat(unittest.TestCase):
-
+    """
+    Creating, listing and running tests
+    """
     def test_pep8_compliance(self):
         """
         Test the modules for PEP8 violations
@@ -73,8 +75,8 @@ class TestCodeFormat(unittest.TestCase):
         cmd = ["pyflakes", "sentimentube", "test"]
         try:
             subprocess.check_output(cmd, universal_newlines=True)
-        except subprocess.CalledProcessError as e:
-            errors = e.output.split("\n")
+        except subprocess.CalledProcessError as err:
+            errors = err.output.split("\n")
             if errors:
                 for error in errors:
                     print(error)

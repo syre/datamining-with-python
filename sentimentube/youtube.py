@@ -124,7 +124,7 @@ class YouTubeScraper:
         if comment_permission == "denied":
             self.logger.error("fetch_videoinfo: comments disallowed for video")
 
-            raise RuntimeError("Comments disallowed for video".format(
+            raise RuntimeError("Comments disallowed for video {0}".format(
                 video_id))
 
         if "gd$rating" in req["entry"]:

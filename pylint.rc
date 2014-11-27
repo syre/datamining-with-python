@@ -4,3 +4,6 @@ reports=no
 
 [Master]
 init-hook='import sys; import os; sys.path.append(os.path.join(os.path.dirname(__file__),"sentimentube"))'
+
+[MESSAGES CONTROL]
+disable=C0103, F0401
