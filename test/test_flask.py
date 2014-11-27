@@ -11,6 +11,9 @@ import datetime
 class WebServeTestCase(TestCase):
 
     def insert_rows(self, video_ids=["tkXr3uxM2fY"], positive_list=[True]):
+        """
+            helper method for inserting test rows in the database
+        """
         for video_index, v_id in enumerate(video_ids):
             database.DB_SESSION.add(models.Video(id=v_id,
                                                  title="test title {}".
@@ -60,6 +63,10 @@ class WebServeTestCase(TestCase):
         database.DB_SESSION.commit()
 
     def setUp(self):
+        """
+        set up method, running before
+        each test
+        """
         webserve.APP.config["TESTING"] = True
         self.app = webserve.APP.test_client()
         database.ENGINE = sqlalchemy.create_engine("sqlite://", echo=False)
