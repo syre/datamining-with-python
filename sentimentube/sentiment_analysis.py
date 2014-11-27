@@ -32,7 +32,7 @@ class SentimentAnalysis:
 
         self.logger = logging.getLogger(__name__)
         self.file_path = os.path.join(os.path.dirname(__file__), file_name)
-        self.load_classifier()
+        self.classifier = self.load_classifier()
 
     def _word_feats_extractor(self, words):
         """
@@ -61,8 +61,9 @@ class SentimentAnalysis:
         self.logger.debug("Number of positive features: %d" % poscutoff)
         trainfeats = negfeats[:negcutoff] + posfeats[:poscutoff]
 
-        self.classifier = NaiveBayesClassifier.train(trainfeats)
+        classifier = NaiveBayesClassifier.train(trainfeats)
         self._save_classifier(classifier)
+        return classifier
 
     def _save_classifier(self, classifier):
         """
@@ -83,13 +84,14 @@ class SentimentAnalysis:
         If it fails, it's training a new
         """
         try:
-            self.classifier = nltk.data.load(
+            classifier = nltk.data.load(
                 "file:"+self.file_path, 'pickle', 1)
             self.logger.info("Classifier loaded!")
+            return classifier
         except (FileExistsError, LookupError):
             self.logger.error("I/O error: file not found")
             self.logger.info("Will train a classifier")
-            self._train()
+            return self._train()
 
     def classify_comments(self, comments):
         """
