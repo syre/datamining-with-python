@@ -35,7 +35,7 @@ class YouTubeTestCase(TestCase):
 
     @mock.patch("youtube.YouTubeScraper._comment_generator")
     def test_fetch_comments_returns_correct_over_zero(self, mock_comment):
-       
+
         scraper = youtube.YouTubeScraper()
         # return dummy list
         cm = models.Comment(id="test", video_id="test", author_id="test",
