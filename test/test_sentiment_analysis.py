@@ -101,11 +101,11 @@ class SentimentAnalysisTestCase(TestCase):
         sa.load_classifier()
         assert sa.classifier is not None
 
-    @staticmethod
+
     @mock.patch("nltk.data.load")
     @mock.patch("sentiment_analysis.SentimentAnalysis._train")
     @mock.patch("logging.Logger")
-    def test_load_wrong_file(nltk_load, train, logger):
+    def test_load_wrong_file(self, nltk_load, train, logger):
         """
         Test load method (sentiment_analysis), with wrong file-name
         (or the file doesn't exist)
