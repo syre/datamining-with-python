@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# pylint: disable=W0212, R0201
+
 """
 Tests for the module "sentiment_analysis"
 """
@@ -11,19 +16,11 @@ class SentimentAnalysisTestCase(TestCase):
     """
     This class has test-methods for "sentiment_analysis" module
     """
-    # def setUp(self):
-    #     """
-    #     Sets an instance to the "sentiment_analysis" module which the other
-    #     methods use
-    #     """
-    #     self.sa = sentiment_analysis.SentimentAnalysis(
-    #         "data/classifier.pickle")
 
-    @staticmethod
     @mock.patch("sentiment_analysis.SentimentAnalysis._train")
     @mock.patch("sentiment_analysis.SentimentAnalysis.load_classifier")
     @mock.patch("nltk.data.load")
-    def test_load_classifier(train, load_classifier, load_data):
+    def test_load_classifier(self, train, load_classifier, load_data):
         """
         Test the load_classifier method
         :param train:
@@ -36,8 +33,7 @@ class SentimentAnalysisTestCase(TestCase):
         load_data.return_value = True
         train.assert_not_called()
 
-    @staticmethod
-    def test_classify_comments():
+    def test_classify_comments(self):
         """
         Test the classify_comment method in "sentiment_analysis"
         """
@@ -61,8 +57,7 @@ class SentimentAnalysisTestCase(TestCase):
         assert video_sentiment.n_pos == 0.5
         assert video_sentiment.n_neg == 0.5
 
-    @staticmethod
-    def test_eval():
+    def test_eval(self):
         """
         Test the eval method in "sentiment_analysis"
         """
@@ -91,8 +86,7 @@ class SentimentAnalysisTestCase(TestCase):
                                            "strong positive",
                                            "strong positive"]
 
-    @staticmethod
-    def test_training():
+    def test_training(self):
         """
         This method test the train method in "sentiment_analysis"
         """
@@ -100,7 +94,6 @@ class SentimentAnalysisTestCase(TestCase):
         sa._train()
         sa.load_classifier()
         assert sa.classifier is not None
-
 
     @mock.patch("nltk.data.load")
     @mock.patch("sentiment_analysis.SentimentAnalysis._train")

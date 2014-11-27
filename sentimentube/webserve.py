@@ -45,7 +45,7 @@ def save_sentiment(video_sentiment, comments_sentiment):
 
     db_videosentiment = database.DB_SESSION.query(
         models.VideoSentiment).filter(
-        models.VideoSentiment.id == video_sentiment.id).first()
+            models.VideoSentiment.id == video_sentiment.id).first()
 
     if db_videosentiment:
         db_videosentiment = database.DB_SESSION.merge(video_sentiment)
