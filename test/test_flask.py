@@ -65,7 +65,8 @@ class WebServeTestCase(TestCase):
         """
         set up method, running before
         each test, sets up an in-memory sqlite database
-        for use as test database
+        for use as test database and
+        set flask up for testing
         """
         webserve.APP.config["TESTING"] = True
         self.app = webserve.APP.test_client()
