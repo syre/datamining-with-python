@@ -56,16 +56,32 @@ def save_sentiment(video_sentiment, comments_sentiment):
 
 @APP.route("/")
 def index():
+    """
+    Shows the front page to the user
+    :return: the front page (index.html)
+    """
     return flask.render_template("index.html")
 
 
 @APP.route("/about")
 def about():
+    """
+    Shows the about page to the user
+    :return: the about page (about.html)
+    """
     return flask.render_template("about.html")
 
 
 @APP.route("/video")
 def video():
+    """
+    Runs the classification for the input the user has given
+    Checks in database whether the video has been processed before. If it has
+    been processed before and there is no changes, it simply shows the result.
+    Else, it will process the video and show the result
+    :return: The video page (video.html) with the result from database or
+            classification.
+    """
     video_id = flask.request.args.get("video_id")
     # if in the form of an url, extract id
     if "youtube" in video_id:
@@ -125,11 +141,20 @@ def video():
 
 @APP.errorhandler(404)
 def not_found(error):
+    """
+    Shows an error message to the user
+    :param error:
+    :return: The error page with the message
+    """
     return flask.render_template("error.html", error=error)
 
 
 @APP.route("/previous")
 def previous():
+    """
+
+    :return:
+    """
     latest = database.DB_SESSION.query(models.Video).order_by(
         sqlalchemy.desc(models.Video.timestamp)).limit(5)
 
@@ -138,6 +163,10 @@ def previous():
 
 @APP.route("/comment_sentiment_plot.png")
 def comment_sentiment_plot():
+    """
+    Creating the histogram-plot for the sentiments of the comments of the video
+    :return: PNG file showing the histogram
+    """
     video_id = flask.request.args.get("video_id")
     fig = Figure(figsize=(5, 5))
     axis = fig.add_subplot(1, 1, 1)
@@ -165,6 +194,11 @@ def comment_sentiment_plot():
 
 @APP.route("/video_sentiment_plot.png")
 def video_sentiment_plot():
+    """
+    Creating a scatter-plot for the sentiments of the video against other
+    videos with the same youtube-category
+    :return: PNG file showing the scatter-plot
+    """
     video_id = flask.request.args.get("video_id")
     fig = Figure(figsize=(5, 5))
     axis = fig.add_subplot(1, 1, 1)

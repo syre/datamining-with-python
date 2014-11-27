@@ -147,5 +147,5 @@ class YouTubeScraper:
         return video, categories
 
 if __name__ == '__main__':
-    you = YouTubeScraper()
-    print(you.fetch_comments("wrong_url"))
+    YOU = YouTubeScraper()
+    print(YOU.fetch_comments("wrong_url"))

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+
 from unittest import TestCase
 import webserve
 import database
@@ -9,7 +11,6 @@ import datetime
 
 
 class WebServeTestCase(TestCase):
-
     def insert_rows(self, video_ids=["tkXr3uxM2fY"], positive_list=[True]):
         for video_index, v_id in enumerate(video_ids):
             database.DB_SESSION.add(models.Video(id=v_id,
@@ -50,13 +51,11 @@ class WebServeTestCase(TestCase):
                                                        published=datetime
                                                        .datetime.now()))
 
-                database.DB_SESSION.add(models.CommentSentiment(id="comment {}"
-                                                                   " {}"
-                                                                .format(
-                                                                   video_index,
-                                                                   com_index),
-                                                                video_id=v_id,
-                                                                positive=pos))
+                database.DB_SESSION.add(
+                    models.CommentSentiment(
+                        id="comment {} {}".format(video_index,
+                                                  com_index),
+                        video_id=v_id, positive=pos))
         database.DB_SESSION.commit()
 
     def setUp(self):

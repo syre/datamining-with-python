@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+"""
+Tests for the module "youtube"
+"""
+
 from unittest import mock, TestCase
 import youtube
 import models
@@ -7,9 +12,18 @@ import requests
 
 
 class YouTubeTestCase(TestCase):
+    """
+    This class has test-methods for "youtube" module
+    """
 
     @mock.patch("youtube.YouTubeScraper._comment_generator")
-    def test_fetch_comments_calls_with_correct_id(self, mock_comment):
+    def test_fetch_comments_correct_id(self, mock_comment):
+        """
+        This methods test the fetch_comments method in youtube module, when
+        it's been called with a correct video id
+        :param mock_comment: Mock object for comment method. The method is not
+                             been called
+        """
         scraper = youtube.YouTubeScraper()
         # return dummy list
         cm = models.Comment(id="test", video_id="test", author_id="test",
@@ -21,6 +35,7 @@ class YouTubeTestCase(TestCase):
 
     @mock.patch("youtube.YouTubeScraper._comment_generator")
     def test_fetch_comments_returns_correct_over_zero(self, mock_comment):
+       
         scraper = youtube.YouTubeScraper()
         # return dummy list
         cm = models.Comment(id="test", video_id="test", author_id="test",
