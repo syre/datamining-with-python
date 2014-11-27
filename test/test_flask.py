@@ -172,7 +172,7 @@ class WebServeTestCase(TestCase):
                                              timestamp=now,
                                              num_of_comments=10))
         database.DB_SESSION.add(models.Comment(id="comment {}".format(v_id),
-                                               video_id=id,
+                                               video_id=v_id,
                                                author_id="test author id",
                                                author_name="test author",
                                                content="test comment",
