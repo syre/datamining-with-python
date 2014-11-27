@@ -112,7 +112,12 @@ class YouTubeScraper:
             raise ValueError("invalid video id")
 
         req = req.json()
+        comment_permission = [entry["permission"] for entry in\
+        req["entry"]["yt$accessControl"] if entry["action"] == "comment"][0]
 
+        if comment_permission == "denied":
+            self.logger.error("fetch_videoinfo: comments disallowed for video")
+            raise RuntimeError("Comments disallowed for video".format(video_id))
         title = req["entry"]["title"]["$t"]
         author_id = req["entry"]["author"][0]["yt$userId"]["$t"]
         rating = req["entry"]["gd$rating"]["average"]

@@ -76,6 +76,8 @@ def video():
     except ValueError:
         return flask.render_template("error.html",
                                      error="invalid video id")
+    except RuntimeError as e:
+        return flask.render_template("error.html", error=str(e))
 
     if (db_video_info and
             db_video_info.num_of_comments == video_info.num_of_comments):
