@@ -209,5 +209,10 @@ class WebServeTestCase(TestCase):
 
     def test_error_page_load_from_wrong_url(self):
         response = self.app.get("/verywrongurl")
-        assert "We did not find the page you were looking for." in \
+        assert "Error: 404: Not Found" in \
+               response.data.decode("utf-8")
+
+    def test_video_page_error_disallowed_comments_video(self):
+        response = self.app.get("/video?video_id={}".format("NZQQdlPoz5g"))
+        assert "Error: Comments disallowed for video" in \
                response.data.decode("utf-8")

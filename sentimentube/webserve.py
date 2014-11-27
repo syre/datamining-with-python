@@ -48,7 +48,7 @@ def save_sentiment(video_sentiment, comments_sentiment):
             models.VideoSentiment.id == video_sentiment.id).first()
 
     if db_videosentiment:
-        db_videosentiment = video_sentiment
+        db_videosentiment = database.DB_SESSION.merge(video_sentiment)
     else:
         database.DB_SESSION.add(video_sentiment)
     database.DB_SESSION.commit()
@@ -96,7 +96,7 @@ def video():
     else:
         LOGGER.info("processing new video with id: {}".format(video_id))
         if db_video_info:
-            db_video_info = video_info
+            db_video_info = database.DB_SESSION.merge(video_info)
         else:
             database.DB_SESSION.add(video_info)
             database.DB_SESSION.add_all(categories)
