@@ -1,5 +1,6 @@
-__author__ = 'Anders'
-
+"""
+Tests for the module "sentiment_analysis"
+"""
 from unittest import mock, TestCase
 import sentiment_analysis
 import models
@@ -63,3 +64,15 @@ class SentimentAnalysisTestCase(TestCase):
                                            "slight positive",
                                            "strong positive",
                                            "strong positive"]
+
+    def test_training(self):
+        self.sa._train()
+        self.sa.load_classifier()
+        assert self.sa.classifier is not None
+
+    @mock.patch("sentiment_analysis.SentimentAnalysis._train")
+    def test_load_not_existing_file(self, train):
+        sa_test_load = sentiment_analysis.SentimentAnalysis(
+            "data/hello_hello.pickle")
+
+        assert sa_test_load.classifier is None

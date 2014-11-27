@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from urllib.error import URLError
+
+"""
+This module has 3 purposes:
+1: Can load an existing classifier from a pickle file
+2: Train and save a classifier to a pickle file
+3: Can classify multiple comments objects (from a list) and deduct an overall
+   classification of the video
+
+The comments object, is the comments from the youtube video which want to be
+classified.
+"""
 
 import nltk.classify.util
 from nltk.classify import NaiveBayesClassifier
@@ -51,8 +61,8 @@ class SentimentAnalysis:
         self.logger.debug("Number of positive features: {0}".format(poscutoff))
         trainfeats = negfeats[:negcutoff] + posfeats[:poscutoff]
 
-        classifier = NaiveBayesClassifier.train(trainfeats)
-        self.save_classifier(classifier)
+        self.classifier = NaiveBayesClassifier.train(trainfeats)
+        self._save_classifier(classifier)
 
     def _save_classifier(self, classifier):
         """
@@ -60,9 +70,9 @@ class SentimentAnalysis:
         :param classifier: The trained classifier
         """
         try:
-            f = open(self.filepath, 'wb')
-            pickle.dump(classifier, f, 1)
-            f.close()
+            file_open = open(self.file_path, 'wb')
+            pickle.dump(classifier, file_open, 1)
+            file_open.close()
             self.logger.info("Classifier saved successfully!")
         except IOError:
             self.logger.debug("Couldn't save the classifier to pickle")
@@ -76,7 +86,7 @@ class SentimentAnalysis:
             self.classifier = nltk.data.load(
                 "file:"+self.file_path, 'pickle', 1)
             self.logger.info("Classifier loaded!")
-        except FileExistsError:
+        except (FileExistsError, LookupError):
             self.logger.error("I/O error: file not found")
             self.logger.info("Will train a classifier")
             self._train()

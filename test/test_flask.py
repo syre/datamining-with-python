@@ -60,8 +60,8 @@ class WebServeTestCase(TestCase):
         database.DB_SESSION.commit()
 
     def setUp(self):
-        webserve.app.config["TESTING"] = True
-        self.app = webserve.app.test_client()
+        webserve.APP.config["TESTING"] = True
+        self.app = webserve.APP.test_client()
         database.ENGINE = sqlalchemy.create_engine("sqlite://", echo=False)
         database.DB_SESSION = \
             sqlalchemy.orm.scoped_session(sqlalchemy.orm
