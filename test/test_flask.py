@@ -18,10 +18,15 @@ class WebServeTestCase(TestCase):
     Class to test webserve module
     """
     @staticmethod
-    def insert_rows(video_ids=["tkXr3uxM2fY"], positive_list=[True]):
+    def insert_rows(video_ids=None, positive_list=None):
         """
             helper method for inserting test rows in the database
         """
+        if not video_ids:
+            video_ids = ["tkXr3uxM2fy"]
+        if not positive_list:
+            positive_list = [True]
+
         for video_index, v_id in enumerate(video_ids):
             database.DB_SESSION.add(models.Video(id=v_id,
                                                  title="test title {}".
@@ -105,7 +110,7 @@ class WebServeTestCase(TestCase):
         test that video loads from database directly if found
         """
         v_id = "tkXr3uxM2fY"
-        self.insert_rows([v_id])
+        WebServeTestCase.insert_rows([v_id])
         response = self.app.get("/video?video_id={}".format(v_id))
         assert "Analysis of video with ID: {}".format(v_id) in \
                response.data.decode("utf-8")
@@ -225,7 +230,7 @@ class WebServeTestCase(TestCase):
         with only negative comment sentiments
         """
         v_id = "tkXr3uxM2fY"
-        self.insert_rows(positive_list=[False])
+        WebServeTestCase.insert_rows(positive_list=[False])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}"
                                 .format(v_id))
         assert response.status_code == 200
@@ -236,7 +241,7 @@ class WebServeTestCase(TestCase):
         with only positive comment sentiments
         """
         v_id = "tkXr3uxM2fY"
-        self.insert_rows(positive_list=[True])
+        WebServeTestCase.insert_rows(positive_list=[True])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}"
                                 .format(v_id))
         assert response.status_code == 200
@@ -247,7 +252,7 @@ class WebServeTestCase(TestCase):
         with mixed comment sentiments (positive and negative)
         """
         v_id = "tkXr3uxM2fY"
-        self.insert_rows(positive_list=[True, False])
+        WebServeTestCase.insert_rows(positive_list=[True, False])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}"
                                 .format(v_id))
         assert response.status_code == 200
@@ -257,7 +262,7 @@ class WebServeTestCase(TestCase):
         Test that video sentiment on video page load works correctly
         """
         v_id = "tkXr3uxM2fY"
-        self.insert_rows()
+        WebServeTestCase.insert_rows()
         response = self.app.get("/video_sentiment_plot.png?video_id={}"
                                 .format(v_id))
         assert response.status_code == 200
@@ -271,7 +276,7 @@ class WebServeTestCase(TestCase):
                  "Ek_cufWYvjE", "zNJJBD_I5EU",
                  "v2zTVZFlCZ0", "ZLa6sX9N3Jw",
                  "c6qOBFkvdG0", "eYhHyUU-CYU"]
-        self.insert_rows(v_ids)
+        WebServeTestCase.insert_rows(v_ids)
 
         response = self.app.get("/previous")
         for v_id in v_ids[5:]:

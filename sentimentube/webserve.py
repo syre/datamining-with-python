@@ -75,7 +75,7 @@ def about():
 @APP.route("/video")
 def video():
     """
-    Runs the classification for the input the user has given
+    Run the classification for the input the user has given
     Checks in database whether the video has been processed before. If it has
     been processed before and there is no changes, it simply shows the result.
     Else, it will process the video and show the result
@@ -138,9 +138,9 @@ def video():
         sentiment, comment_sentiments = ANALYZER.classify_comments(comments)
 
         save_sentiment(sentiment, comment_sentiments)
-    video = {"sentiment": sentiment, "video_info": video_info,
-             "num_of_comments": len(comments)}
-    return flask.render_template("video.html", video=video)
+    video_dict = {"sentiment": sentiment, "video_info": video_info,
+                  "num_of_comments": len(comments)}
+    return flask.render_template("video.html", video=video_dict)
 
 
 @APP.errorhandler(404)

@@ -101,17 +101,16 @@ class YouTubeScraper:
 
     def fetch_videoinfo(self, video_id):
         """
-        fetch relevant information about the video from the gdata youtube API
-        and stores it in the database.
+        fetch relevant information about the video from the gdata youtube API.
 
         Parameters:
         - video_id : the id of the youtube video
 
         Returns:
-        - tuple of Video object and list of Categories
+        - tuple of Video object and list of Category objects
         """
-        params = {"v": 2, "alt": "json"}
-        req = requests.get(self.video_url.format(video_id), params=params)
+        req = requests.get(self.video_url.format(video_id),
+                           params={"v": 2, "alt": "json"})
         if not req:
             self.logger.error("fetch_videoinfo: invalid video id")
             raise ValueError("invalid video id")
@@ -127,31 +126,50 @@ class YouTubeScraper:
             raise RuntimeError("Comments disallowed for video {0}".format(
                 video_id))
 
+        video = self.extract_video(req, video_id)
+        categories = self.extract_categories(req, video_id)
+        return video, categories
+
+    def extract_categories(self, req, video_id):
+        """
+        extract categories from a json-converted gdata video HTTP response
+        Parameters:
+        - req : the gdata video HTTP response
+        - video_id: the youtube video id
+        Returns:
+        - list of Category objects
+        """
+        categories = req["entry"]["media$group"]["media$category"]
+        categories = [models.VideoCategory(type=category["$t"],
+                                           video_id=video_id)
+                      for category in categories]
+        return categories
+
+    def extract_video(self, req, video_id):
+        """
+        extract video object from a json-converted gdata video HTTP response
+        Parameters:
+        - req: the gdata video HTTP response
+        - video_id: the youtube video id
+        Returns:
+        - a Video object
+        """
+        rating, numraters = None, None
         if "gd$rating" in req["entry"]:
             rating = req["entry"]["gd$rating"]["average"]
             numraters = req["entry"]["gd$rating"]["numRaters"]
-        else:
-            rating = None
-            numraters = None
+        likes, dislikes = None, None
         if "yt$rating" in req["entry"]:
             likes = req["entry"]["yt$rating"]["numLikes"]
             dislikes = req["entry"]["yt$rating"]["numDislikes"]
-        else:
-            likes = None
-            dislikes = None
 
         title = req["entry"]["title"]["$t"]
         author_id = req["entry"]["author"][0]["yt$userId"]["$t"]
-        viewcount = int(req["entry"]["yt$statistics"]["viewCount"])
+        viewcount = req["entry"]["yt$statistics"]["viewCount"]
         duration = req["entry"]["media$group"]["media$content"][0]["duration"]
-        categories = req["entry"]["media$group"]["media$category"]
         published = dateutil.parser.parse(req["entry"]["published"]["$t"])
         num_of_comments = \
             req["entry"]["gd$comments"]["gd$feedLink"]["countHint"]
-        timestamp = datetime.datetime.now()
-        categories = [models.VideoCategory(type=c["$t"], video_id=video_id)
-                      for c in categories]
-
         video = models.Video(id=video_id,
                              title=title,
                              author_id=author_id,
@@ -163,8 +181,8 @@ class YouTubeScraper:
                              likes=likes,
                              dislikes=dislikes,
                              num_of_comments=num_of_comments,
-                             timestamp=timestamp)
-        return video, categories
+                             timestamp=datetime.datetime.now())
+        return video
 
 if __name__ == '__main__':
     YOU = YouTubeScraper()

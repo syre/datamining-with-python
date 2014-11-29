@@ -48,8 +48,8 @@ class TestCodeFormat(unittest.TestCase):
             subprocess.check_output(cmd, universal_newlines=True)
         except subprocess.CalledProcessError as error:
             errors = [line for line in error.output.split("\n")
-                      if not line.startswith("*") or not
-                      line.find("Locally disabling")]
+                      if not line.startswith("*") and
+                      "Locally disabling" not in line]
             if errors:
                 for error in errors:
                     print(error)
