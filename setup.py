@@ -25,10 +25,10 @@ setup(
     license="MIT",
     keywords="youtube sentiment analysis",
     url="https://github.com/syre/datamining-with-python",
-    packages=["sentimentube"],
+    packages=["sentimentube", "test"],
+    scripts=["sentimentube/webserve.py"]
     long_description=open('README.md').read(),
-    install_requires=["requests", "flask", "matplotlib", "sqlite3"],
-    py_modules=["sentimentube"],
+    install_requires=["requests", "flask", "matplotlib", "sqlalchemy", "nltk"],
     cmdclass={"test": ToxTestCommand},
     tests_require=["tox"],
     classifiers=[
