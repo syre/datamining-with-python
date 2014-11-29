@@ -30,7 +30,7 @@ setup(
     long_description=open('README.md').read(),
     install_requires=["requests", "flask", "matplotlib", "sqlalchemy", "nltk"],
     cmdclass={"test": ToxTestCommand},
-    tests_require=["tox"],
+    tests_require=["tox", "nose", "nose-pathmunge", "flake8", "pylint"],
     classifiers=[
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.4",
