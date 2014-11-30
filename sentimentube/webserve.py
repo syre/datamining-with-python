@@ -222,11 +222,14 @@ def video_sentiment_plot():
     current_video = database.DB_SESSION.query(models.VideoSentiment).filter(
         models.VideoSentiment.id == video_id).first()
 
-    axis.plot([v.n_pos for v in videos], [v.n_neg for v in videos], "gx")
-    axis.plot(current_video.n_pos, current_video.n_neg, "rx")
+    axis.scatter([v.n_pos for v in videos], [v.n_neg for v in videos],
+                 color="blue", marker="x", label="previously analysed")
+    axis.scatter(current_video.n_pos, current_video.n_neg, color="black",
+                 marker="o", label=video_id)
     axis.set_title("video sentiment comparison")
     axis.set_xlabel("measure of positivity")
     axis.set_ylabel("measure of negativity")
+    axis.legend()
     canvas = FigureCanvas(fig)
     output = io.BytesIO()
     canvas.print_png(output)

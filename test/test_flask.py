@@ -255,7 +255,7 @@ class WebServeTestCase(TestCase):
         tests with only negative comment sentiments
         """
         v_id = "tkXr3uxM2fY"
-        WebServeTestCase.insert_rows(positive_list=[False])
+        WebServeTestCase.insert_rows([v_id], positive_list=[False])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}"
                                 .format(v_id))
         assert response.status_code == 200
@@ -267,7 +267,7 @@ class WebServeTestCase(TestCase):
         tests with only positive comment sentiments
         """
         v_id = "tkXr3uxM2fY"
-        WebServeTestCase.insert_rows(positive_list=[True])
+        WebServeTestCase.insert_rows([v_id], positive_list=[True])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}"
                                 .format(v_id))
         assert response.status_code == 200
@@ -279,7 +279,7 @@ class WebServeTestCase(TestCase):
         with mixed comment sentiments (positive and negative)
         """
         v_id = "tkXr3uxM2fY"
-        WebServeTestCase.insert_rows(positive_list=[True, False])
+        WebServeTestCase.insert_rows([v_id], positive_list=[True, False])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}"
                                 .format(v_id))
         assert response.status_code == 200
@@ -291,7 +291,7 @@ class WebServeTestCase(TestCase):
         asserts on HTTP status = 200
         """
         v_id = "tkXr3uxM2fY"
-        WebServeTestCase.insert_rows()
+        WebServeTestCase.insert_rows([v_id], [True, False])
         response = self.app.get("/video_sentiment_plot.png?video_id={}"
                                 .format(v_id))
         assert response.status_code == 200
