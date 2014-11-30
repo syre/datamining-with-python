@@ -1,3 +1,1 @@
-"""
-Init py-file for test
-"""
+""" init py-file for test. """
