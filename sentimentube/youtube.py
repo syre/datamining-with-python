@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-This module scrapes/download contents from a youtube video
-"""
+
+""" This module scrapes/download contents from a youtube video. """
 import requests
 import dateutil.parser
 import logging
@@ -132,7 +131,8 @@ class YouTubeScraper:
 
     def extract_categories(self, req, video_id):
         """
-        extract categories from a json-converted gdata video HTTP response
+        extract categories from a json-converted gdata video HTTP response.
+
         Parameters:
         - req : the gdata video HTTP response
         - video_id: the youtube video id
@@ -147,7 +147,8 @@ class YouTubeScraper:
 
     def extract_video(self, req, video_id):
         """
-        extract video object from a json-converted gdata video HTTP response
+        extract video object from a json-converted gdata video HTTP response.
+
         Parameters:
         - req: the gdata video HTTP response
         - video_id: the youtube video id

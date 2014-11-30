@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Creating the web-application and handling the interacting between the user
-and the system
+Flask app for webservice.
+
+handles the interacting between the user and the system.
 """
 import flask
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -29,6 +30,8 @@ APP = flask.Flask(__name__)
 
 def save_sentiment(video_sentiment, comments_sentiment):
     """
+    helper function for saving sentiments in the database.
+
     Saves the results of sentiment analysis to the database.
     The result of each comment and for the whole video is saved
     :param video_sentiment: sentiment result for the whole video:
@@ -57,7 +60,8 @@ def save_sentiment(video_sentiment, comments_sentiment):
 @APP.route("/")
 def index():
     """
-    Shows the front page to the user
+    Show the front page to the user.
+
     :return: the front page (index.html)
     """
     return flask.render_template("index.html")
@@ -66,7 +70,8 @@ def index():
 @APP.route("/about")
 def about():
     """
-    Shows the about page to the user
+    Show the about page to the user.
+
     :return: the about page (about.html)
     """
     return flask.render_template("about.html")
@@ -75,6 +80,8 @@ def about():
 @APP.route("/video")
 def video():
     """
+    Video analysis page.
+
     Run the classification for the input the user has given
     Checks in database whether the video has been processed before. If it has
     been processed before and there is no changes, it simply shows the result.
@@ -146,7 +153,8 @@ def video():
 @APP.errorhandler(404)
 def not_found(error):
     """
-    Shows an error message to the user
+    Show an error message to the user.
+
     :param error:
     :return: The error page with the message
     """
@@ -155,10 +163,7 @@ def not_found(error):
 
 @APP.route("/previous")
 def previous():
-    """
-
-    :return:
-    """
+    """ return 5 latest sentiment analyses. """
     latest = database.DB_SESSION.query(models.Video).order_by(
         sqlalchemy.desc(models.Video.timestamp)).limit(5)
 
@@ -168,6 +173,8 @@ def previous():
 @APP.route("/comment_sentiment_plot.png")
 def comment_sentiment_plot():
     """
+    Create comment sentiment plot.
+
     Creating the histogram-plot for the sentiments of the comments of the video
     :return: PNG file showing the histogram
     """
@@ -199,6 +206,8 @@ def comment_sentiment_plot():
 @APP.route("/video_sentiment_plot.png")
 def video_sentiment_plot():
     """
+    Create video sentiment plot.
+
     Creating a scatter-plot for the sentiments of the video against other
     videos with the same youtube-category
     :return: PNG file showing the scatter-plot

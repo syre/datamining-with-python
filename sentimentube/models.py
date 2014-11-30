@@ -3,15 +3,14 @@
 
 # pylint: disable=W0232, R0903
 
-""" Handling objects """
+""" database models for sqlalchemy. """
 import sqlalchemy
 from database import BASE
 
 
 class Comment(BASE):
-    """
-    Comment object
-    """
+
+    """ Comment object. """
 
     __tablename__ = "comments"
     __table_args__ = {'extend_existing': True}
@@ -24,15 +23,16 @@ class Comment(BASE):
     published = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
 
     def __repr__(self):
+        """ __repr__ method for Comment with necessary information. """
         return "{}(id={}, video_id={}, author_id={}, content={})".format(
             self.__class__.__name__, self.id, self.video_id, self.author_id,
             self.content)
 
 
 class Video(BASE):
-    """
-    Video object
-    """
+
+    """ Video object. """
+
     __tablename__ = "videos"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.String, primary_key=True, nullable=False)
@@ -50,14 +50,15 @@ class Video(BASE):
                                         nullable=False)
 
     def __repr__(self):
+        """ __repr__ method for Video. """
         return "{}(id={}, title={}, author_id={})".format(
             self.__class__.__name__, self.id, self.title, self.author_id)
 
 
 class VideoSentiment(BASE):
-    """
-    VideoSentiment object
-    """
+
+    """ VideoSentiment object. """
+
     __tablename__ = "videosentiments"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.String,
@@ -68,15 +69,16 @@ class VideoSentiment(BASE):
     result = sqlalchemy.Column(sqlalchemy.String, nullable=False)
 
     def __repr__(self):
+        """ __repr__ method for VideoSentiment. """
         return "{}(id={}, n_pos={:.3}, n_neg={:.3}, result={})".format(
             self.__class__.__name__, self.id, self.n_pos, self.n_neg,
             self.result)
 
 
 class CommentSentiment(BASE):
-    """
-    CommentSentiment object
-    """
+
+    """ CommentSentiment object. """
+
     __tablename__ = "commentsentiments"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.String,
@@ -88,14 +90,15 @@ class CommentSentiment(BASE):
     positive = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False)
 
     def __repr__(self):
+        """ __repr__ method for CommentSentiment. """
         return "{}(id={}, video_id={}, positive={})".format(
             self.__class__.__name__, self.id, self.video_id, self.positive)
 
 
 class VideoCategory(BASE):
-    """
-    VideoCategory object
-    """
+
+    """ VideoCategory object. """
+
     __tablename__ = "videocategories"
     __table_args__ = {'extend_existing': True}
     id = sqlalchemy.Column(sqlalchemy.Integer,
@@ -106,5 +109,6 @@ class VideoCategory(BASE):
     type = sqlalchemy.Column(sqlalchemy.String, nullable=False)
 
     def __repr__(self):
+        """ __repr__ method for VideoCategory. """
         return "{}(id={}, video_id={}, type={})".format(
             self.__class__.__name__, self.id, self.video_id, self.type)

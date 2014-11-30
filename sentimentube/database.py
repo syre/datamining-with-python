@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-""" Handling the database connection """
+""" Handling the database connection. """
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 import os
@@ -16,8 +16,6 @@ BASE = declarative_base()
 
 
 def init_db():
-    """
-    Creates the database and its tables
-    """
+    """ Create the database and its tables. """
     import models  # noqa # pylint: disable=unused-variable
     BASE.metadata.create_all(bind=ENGINE)

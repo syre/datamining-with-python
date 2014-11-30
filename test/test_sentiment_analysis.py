@@ -3,9 +3,7 @@
 
 # pylint: disable=W0212, R0201
 
-"""
-Tests for the module "sentiment_analysis"
-"""
+""" Tests for the module sentiment_analysis. """
 from unittest import mock, TestCase
 import sentiment_analysis
 import models
@@ -13,16 +11,16 @@ from datetime import datetime
 
 
 class SentimentAnalysisTestCase(TestCase):
-    """
-    This class has test-methods for "sentiment_analysis" module
-    """
+
+    """ This class has test-methods for sentiment_analysis module. """
 
     @mock.patch("sentiment_analysis.SentimentAnalysis._train")
     @mock.patch("sentiment_analysis.SentimentAnalysis.load_classifier")
     @mock.patch("nltk.data.load")
     def test_load_classifier(self, train, load_classifier, load_data):
         """
-        Test the load_classifier method
+        Test the load_classifier method.
+
         :param train:
         :param load_classifier:
         :param load_data:
@@ -34,9 +32,7 @@ class SentimentAnalysisTestCase(TestCase):
         train.assert_not_called()
 
     def test_classify_comments(self):
-        """
-        Test the classify_comment method in "sentiment_analysis"
-        """
+        """ Test the classify_comment method in sentiment_analysis. """
         comments = []
         static_comments = ["I love you!", "I hate you!",
                            "I wont talk to you. Idiot!", "you are sweet",
@@ -58,9 +54,7 @@ class SentimentAnalysisTestCase(TestCase):
         assert video_sentiment.n_neg == 0.5
 
     def test_eval(self):
-        """
-        Test the eval method in "sentiment_analysis"
-        """
+        """ Test the eval method in sentiment_analysis. """
         test_ratios_pos = [0.1, 0.25, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.85,
                            0.96]
         test_objects = []
@@ -87,9 +81,7 @@ class SentimentAnalysisTestCase(TestCase):
                                            "strong positive"]
 
     def test_training(self):
-        """
-        This method test the train method in "sentiment_analysis"
-        """
+        """ test the train method in sentiment_analysis. """
         sa = sentiment_analysis.SentimentAnalysis("data/classifier.pickle")
         sa._train()
         sa.load_classifier()
@@ -100,7 +92,9 @@ class SentimentAnalysisTestCase(TestCase):
     @mock.patch("logging.Logger")
     def test_load_wrong_file(self, nltk_load, train, logger):
         """
-        Test load method (sentiment_analysis), with wrong file-name
+        Test load method.
+
+        tests with wrong file-name
         (or the file doesn't exist)
 
         :param nltk_load: Mock object on nltk.load method with side_effect

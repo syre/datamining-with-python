@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
+module for sentiment analysis.
+
 This module has 3 purposes:
 1: Can load an existing classifier from a pickle file
 2: Train and save a classifier to a pickle file
@@ -22,15 +24,11 @@ import models
 
 
 class SentimentAnalysis:
-    """
-    Class for making sentiment analysis of video comments
-    """
+
+    """ Class for making sentiment analysis of video comments. """
 
     def __init__(self, file_name):
-        """
-        Call the load method to load the classifier from file.
-        """
-
+        """ Call the load method to load the classifier from file. """
         self.logger = logging.getLogger(__name__)
         self.file_path = os.path.join(os.path.dirname(__file__), file_name)
         self.classifier = self.load_classifier()
@@ -38,17 +36,15 @@ class SentimentAnalysis:
     @staticmethod
     def _word_feats_extractor(words):
         """
-        Extract features from corpus
+        Extract features from corpus.
+
         :param words: List of words from corpus
         :return: Dict of the words as keys and value True
         """
         return dict([(word, True) for word in words])
 
     def _train(self):
-        """
-        Training the Naïve Bayes classifier
-        """
-
+        """ Training the Naïve Bayes classifier. """
         negids = movie_reviews.fileids('neg')
         posids = movie_reviews.fileids('pos')
 
@@ -69,7 +65,8 @@ class SentimentAnalysis:
 
     def _save_classifier(self, classifier):
         """
-        Saving the classifier to a pickle file
+        Saving the classifier to a pickle file.
+
         :param classifier: The trained classifier
         """
         try:
@@ -83,7 +80,8 @@ class SentimentAnalysis:
     def load_classifier(self):
         """
         Loading a trained classifier from file.
-        If it fails, it's training a new
+
+        If it fails, it's trains a new classifier
         """
         try:
             classifier = nltk.data.load(
@@ -97,8 +95,10 @@ class SentimentAnalysis:
 
     def classify_comments(self, comments):
         """
-        Classifying a youtube-videos comments, by classify each comments
-        and let the method 'eval' make a decision
+        Classifying a list of youtube-videos comments.
+
+        works by classify each comments and let
+        the method 'eval' make a decision
         It normalize the ratio between number of positive and negative comments
         before calling the 'eval' method
         :param comments: The comments of youtube-video
@@ -145,6 +145,8 @@ class SentimentAnalysis:
     @staticmethod
     def _eval(video_sentiment):
         """
+        evaluate the overall sentiment of a youtube video.
+
         Taking a decision of the whole youtube-video based on the ratio
         between positive and negative comments
         It takes a decision like so, based on number positive comments (nPos):

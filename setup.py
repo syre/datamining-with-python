@@ -1,20 +1,6 @@
-import os
-import sys
-
+# -*- coding: utf-8 -*-
+""" setup.py file for sentimentube. """
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
-
-import sentimentube
-
-class ToxTestCommand(TestCommand):
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        sys.exit(os.system('tox'))
 
 setup(
     name="sentimentube",
@@ -26,10 +12,9 @@ setup(
     keywords="youtube sentiment analysis",
     url="https://github.com/syre/datamining-with-python",
     packages=["sentimentube", "test"],
-    scripts=["sentimentube/webserve.py"]
+    scripts=["sentimentube/webserve.py"],
     long_description=open('README.md').read(),
     install_requires=["requests", "flask", "matplotlib", "sqlalchemy", "nltk"],
-    cmdclass={"test": ToxTestCommand},
     tests_require=["tox", "nose", "nose-pathmunge", "flake8", "pylint"],
     classifiers=[
         "Programming Language :: Python :: 2.7",

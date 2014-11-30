@@ -3,9 +3,7 @@
 
 # pylint: disable=W0212, R0201
 
-"""
-Tests for the module "youtube"
-"""
+""" tests for the youtube module. """
 
 from unittest import mock, TestCase
 import youtube
@@ -14,15 +12,16 @@ import requests
 
 
 class YouTubeTestCase(TestCase):
-    """
-    This class has test-methods for "youtube" module
-    """
+
+    """ This class has test-methods for youtube module. """
 
     @mock.patch("youtube.YouTubeScraper._comment_generator")
     def test_fetch_comments_correct_id(self, mock_comment):
         """
-        This methods test the fetch_comments method in youtube module, when
-        it's been called with a correct video id
+        test of fetch_comments in YouTubeScraper with correct id.
+
+        calling the the fetch_comments method in the YouTubeScraper with
+         a correct id and asserting the results
         :param mock_comment: Mock object for comment method. The method is not
                              been called
         """
@@ -38,11 +37,12 @@ class YouTubeTestCase(TestCase):
     @mock.patch("youtube.YouTubeScraper._comment_generator")
     def test_fetch_comments_returns_correct_over_zero(self, mock_comment):
         """
+        test of fetch_comments returning all comments correctly.
+
         this method tests that the correct amount of comments is returned
         when specified
         :param mock: Mock object for _comment_generator
         """
-
         scraper = youtube.YouTubeScraper()
         # return dummy list
         cm = models.Comment(id="test", video_id="test", author_id="test",
@@ -55,8 +55,10 @@ class YouTubeTestCase(TestCase):
     @mock.patch("youtube.YouTubeScraper._comment_generator")
     def test_fetch_comments_returns_all_at_zero(self, mock_comment):
         """
-        tests that all comments are returned number
-        is not specified
+        test fetch_comments returning all comments unexplicitly.
+
+        tests that all comments are returned when a number
+        is not explicitly specified
         :param mock_comment: Mock object for _comment_generator
         """
         scraper = youtube.YouTubeScraper()
@@ -71,7 +73,9 @@ class YouTubeTestCase(TestCase):
     @mock.patch("logging.Logger.error")
     def test_comment_generator_wrong_videoid_gracefully(self, mock_logger):
         """
-        tests that _comment_generator raises exception
+        test _comment_generator handles wrong video_id.
+
+        tests that _comment_generator raises a ValueError
         when supplied with an invalid video id
         :param mock_logger: Mock object for logger
         """
@@ -83,6 +87,8 @@ class YouTubeTestCase(TestCase):
     @mock.patch("logging.Logger.error")
     def test_fetch_videoinfo_wrong_videoid_gracefully(self, mock_logger):
         """
+        test fetch_videoinfo handles wrong video_id.
+
         tests that fetch_videoinfo raises exception
         and error is logged when supplied with an invalid video id
         :param mock_logger: Mock object for logger
@@ -95,6 +101,8 @@ class YouTubeTestCase(TestCase):
     @mock.patch("requests.get")
     def test_fetchcomments_no_connection(self, mock_requests, mock_logger):
         """
+        test in case of requests error.
+
         tests that connection error (requests) is logged
         :param mock_requests : Mock object for requests.get method
         :param mock_logger : Mock object for logger
