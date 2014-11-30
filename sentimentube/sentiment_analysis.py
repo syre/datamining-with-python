@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-module for sentiment analysis.
+Module for sentiment analysis.
 
 This module has 3 purposes:
 1: Can load an existing classifier from a pickle file
@@ -21,52 +21,132 @@ import pickle
 import os
 import logging
 import models
+from nltk.corpus import stopwords
+CUSTOM_STOP_WORDS = ['band', 'they', 'them']
 
 
 class SentimentAnalysis:
-
-    """ Class for making sentiment analysis of video comments. """
+    """
+    Class for making sentiment analysis of video comments
+    """
 
     def __init__(self, file_name):
-        """ Call the load method to load the classifier from file. """
+        """
+        Call the load method to load the classifier from file.
+        """
+
         self.logger = logging.getLogger(__name__)
         self.file_path = os.path.join(os.path.dirname(__file__), file_name)
         self.classifier = self.load_classifier()
 
+    def load_corpus(self, file_name, split=","):
+        """
+        Loads corpus from file and stores it in a tuple
+        :param file_name: Name of the corpus file
+        :param split: How to split a line in the corpus (text vs. sentiment).
+                      Default split: ','
+        :return: pt and nt: Respectively positive and negative tuple
+                            (text, sentiment)
+        """
+        pt = []
+        nt = []
+        self.logger.debug("Loading corpus file")
+        try:
+            file_path = os.path.join(os.path.dirname(__file__), file_name)
+            with open(file_path, 'r') as read_file:
+                header = read_file.readline()
+                for line in read_file:
+                    line = line.split(split)
+                    if int(line[0]) == 1:
+                        pt.append((line[1], "positive"))
+                    else:
+                        nt.append((line[1].strip(), "negative"))
+            return pt, nt
+        except(FileExistsError, LookupError):
+            self.logger.error("I/O error: corpus file not found")
+
     @staticmethod
-    def _word_feats_extractor(words):
+    def create_word_list(text_words_tuples):
         """
-        Extract features from corpus.
+        Creates a big set with ALL of the words from the corpus
+        :param text_words_tuples: Tuple with all text and their sentiments
+        :return words_list: The big set with all the words
+        """
+        words_list = set()
+        for (words, _) in text_words_tuples:
+            for word in words:
+                words_list.add(word.lower())
+        return words_list
 
+    @staticmethod
+    def create_tagged_text(tuples):
+        """
+        Creates a list of tuples containing word of the text (as a list) and
+        its sentiment
+        :param tuples: Tuples with text (as strings) and its sentiment
+        :return tuples_text: The list of tuples
+        """
+        tuple_text = []
+        for (text, sentiment) in tuples:
+            clean_word = []
+            words = text.split()
+            clean_word.extend([i.lower() for i in words
+                               if not i.lower() in stopwords.words('english')])
+            tuple_text.append((clean_word, sentiment))
+        return tuple_text
+
+    def _word_feats_extractor(self, doc):
+        """
+        Extract features from corpus
         :param words: List of words from corpus
-        :return: Dict of the words as keys and value True
+        :return: Dict of the words as keys and True/False as values
         """
-        return dict([(word, True) for word in words])
+        doc_words = set(doc)
+        features = {}
+        for i in self.word_list:
+            features['contains(%s)' % i] = (i in doc_words)
+        return features
 
-    def _train(self):
-        """ Training the Naïve Bayes classifier. """
-        negids = movie_reviews.fileids('neg')
-        posids = movie_reviews.fileids('pos')
+    def _train(self, corpus_filename):
+        """
+        Training the Naïve Bayes classifier, by calling the following methods:
+        - load_corpus
+        - create_tagged_text
+        - create_word_list
+        - word_feats_extractor
+        """
+        print("Train")
+        pos_text, neg_text = self.load_corpus(corpus_filename, ";")
+        self.logger.debug("Creating words tuples...")
+        pos_text_words_tuples = self.create_tagged_text(pos_text)
+        neg_text_words_tuples = self.create_tagged_text(neg_text)
 
-        negfeats = [(self._word_feats_extractor(
-            movie_reviews.words(fileids=[f])), 'neg') for f in negids]
-        posfeats = [(self._word_feats_extractor(
-            movie_reviews.words(fileids=[f])), 'pos') for f in posids]
+        word_list_temp = self.create_word_list(pos_text_words_tuples)
+        print("Train 2")
+        self.logger.debug("Creating word_list with negative words "
+                          "and combine them with positive words...")
+        self.word_list = word_list_temp.union(self.create_word_list(
+            neg_text_words_tuples))
 
-        negcutoff = int(len(negfeats) * 3 / 4)
-        poscutoff = int(len(posfeats) * 3 / 4)
-        self.logger.debug("Number of negative features: %d", negcutoff)
-        self.logger.debug("Number of positive features: %d", poscutoff)
-        trainfeats = negfeats[:negcutoff] + posfeats[:poscutoff]
+        self.logger.debug("Combining the two tuples "
+                          "(positive and negative text)...")
+        tagged_text = pos_text_words_tuples + neg_text_words_tuples
+        self.logger.debug("Deleting the two original tuples")
+        del pos_text_words_tuples, neg_text_words_tuples
 
-        classifier = NaiveBayesClassifier.train(trainfeats)
+        print("Train 3")
+        self.logger.debug("Making training set (apply features)...")
+
+        training_set = nltk.classify.apply_features(
+            self._word_feats_extractor, tagged_text)
+
+        classifier = nltk.NaiveBayesClassifier.train(training_set)
         self._save_classifier(classifier)
         return classifier
 
     def _save_classifier(self, classifier):
         """
-        Saving the classifier to a pickle file.
-
+        Saving the classifier to a pickle file
         :param classifier: The trained classifier
         """
         try:
@@ -80,8 +160,7 @@ class SentimentAnalysis:
     def load_classifier(self):
         """
         Loading a trained classifier from file.
-
-        If it fails, it's trains a new classifier
+        If it fails, it's training a new
         """
         try:
             classifier = nltk.data.load(
@@ -89,16 +168,14 @@ class SentimentAnalysis:
             self.logger.info("Classifier loaded!")
             return classifier
         except (FileExistsError, LookupError):
-            self.logger.error("I/O error: file not found")
+            self.logger.error("I/O error: classifier file not found")
             self.logger.info("Will train a classifier")
-            return self._train()
+            return self._train("data/corpus.txt")
 
     def classify_comments(self, comments):
         """
-        Classifying a list of youtube-videos comments.
-
-        works by classify each comments and let
-        the method 'eval' make a decision
+        Classifying a youtube-videos comments, by classify each comments
+        and let the method 'eval' make a decision
         It normalize the ratio between number of positive and negative comments
         before calling the 'eval' method
         :param comments: The comments of youtube-video
@@ -145,8 +222,6 @@ class SentimentAnalysis:
     @staticmethod
     def _eval(video_sentiment):
         """
-        evaluate the overall sentiment of a youtube video.
-
         Taking a decision of the whole youtube-video based on the ratio
         between positive and negative comments
         It takes a decision like so, based on number positive comments (nPos):
