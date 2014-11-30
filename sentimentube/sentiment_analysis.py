@@ -34,10 +34,11 @@ class SentimentAnalysis:
         """
         Call the load method to load the classifier from file.
         """
-
+        corpus_path = "data/corpus.txt"
         self.logger = logging.getLogger(__name__)
         self.file_path = os.path.join(os.path.dirname(__file__), file_name)
-        self.classifier = self.load_classifier()
+        self.classifier = self.load_classifier(corpus_path)
+        _, self.word_list = self.create_words_and_tuples(corpus_path)
 
     def load_corpus(self, file_name, split=","):
         """
@@ -107,15 +108,7 @@ class SentimentAnalysis:
             features['contains(%s)' % i] = (i in doc_words)
         return features
 
-    def _train(self, corpus_filename):
-        """
-        Training the Naïve Bayes classifier, by calling the following methods:
-        - load_corpus
-        - create_tagged_text
-        - create_word_list
-        - word_feats_extractor
-        """
-        print("Train")
+    def create_words_and_tuples(self, corpus_filename):
         pos_text, neg_text = self.load_corpus(corpus_filename, ";")
         self.logger.debug("Creating words tuples...")
         pos_text_words_tuples = self.create_tagged_text(pos_text)
@@ -125,7 +118,7 @@ class SentimentAnalysis:
         print("Train 2")
         self.logger.debug("Creating word_list with negative words "
                           "and combine them with positive words...")
-        self.word_list = word_list_temp.union(self.create_word_list(
+        word_list = word_list_temp.union(self.create_word_list(
             neg_text_words_tuples))
 
         self.logger.debug("Combining the two tuples "
@@ -133,6 +126,18 @@ class SentimentAnalysis:
         tagged_text = pos_text_words_tuples + neg_text_words_tuples
         self.logger.debug("Deleting the two original tuples")
         del pos_text_words_tuples, neg_text_words_tuples
+        return tagged_text, word_list
+
+    def _train(self, corpus_filename):
+        """
+        Training the Naïve Bayes classifier, by calling the following methods:
+        - load_corpus
+        - create_tagged_text
+        - create_word_list
+        - word_feats_extractor
+        """
+        print("Train")
+        tagged_text, _ = self.create_words_and_tuples(corpus_filename)
 
         print("Train 3")
         self.logger.debug("Making training set (apply features)...")
@@ -157,7 +162,7 @@ class SentimentAnalysis:
         except IOError:
             self.logger.debug("Couldn't save the classifier to pickle")
 
-    def load_classifier(self):
+    def load_classifier(self, corpus_path):
         """
         Loading a trained classifier from file.
         If it fails, it's training a new
@@ -170,7 +175,7 @@ class SentimentAnalysis:
         except (FileExistsError, LookupError):
             self.logger.error("I/O error: classifier file not found")
             self.logger.info("Will train a classifier")
-            return self._train("data/corpus.txt")
+            return self._train(corpus_path)
 
     def classify_comments(self, comments):
         """
