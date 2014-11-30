@@ -55,7 +55,7 @@ class TestCodeFormat(unittest.TestCase):
                 self.assertTrue(False, msg="pylint fail")
 
     def test_flake8_compliance(self):
-        """ Test the modules for pyflakes violations. """
+        """ Test the modules for flake8 violations. """
         cmd = ["flake8", "sentimentube", "test"]
         try:
             subprocess.check_output(cmd, universal_newlines=True)
