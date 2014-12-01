@@ -197,7 +197,6 @@ class SentimentAnalysis:
                          video_sentiment.result)
         return video_sentiment, comments_sentiment
 
-    @staticmethod
     def _eval(video_sentiment):
         """
         Taking a decision of the whole youtube-video based on the ratio

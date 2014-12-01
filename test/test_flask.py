@@ -63,40 +63,31 @@ def insert_rows(video_ids=None, positive_list=None):
 class WebServeTestCase(TestCase):
 
     """ Class to test webserve module. """
-    @classmethod
-    def setUpClass(self):
-      webserve.APP.config["TESTING"] = True
-      self.app = webserve.APP.test_client()
-      database.ENGINE = sqlalchemy.create_engine("sqlite://", echo=False)
-      database.init_db()
-
     def setUp(self):
         """
         setUp method for all tests.
-
         set up method, running before
         each test, sets up an in-memory sqlite database
         for use as test database and
         sets flask up for testing
         """
-
+        webserve.APP.config["TESTING"] = True
+        self.app = webserve.APP.test_client()
+        database.ENGINE = sqlalchemy.create_engine("sqlite://", echo=False)
         database.DB_SESSION = \
             sqlalchemy.orm.scoped_session(sqlalchemy.orm
                                           .sessionmaker(
                                               autocommit=False,
                                               autoflush=False,
                                               bind=database.ENGINE))
-
+        database.init_db()
 
     def tearDown(self):
         """
         tearDown method for all tests.
-
         tear down method, running after
         each test, closes the session
         """
-        for tbl in reversed(database.BASE.metadata.sorted_tables):
-            database.ENGINE.execute(tbl.delete())
         database.DB_SESSION.close()
 
     def test_start_page_load_correct(self):
