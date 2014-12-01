@@ -3,13 +3,11 @@
 
 """
 Module for sentiment analysis.
-
 This module has 3 purposes:
 1: Can load an existing classifier from a pickle file
 2: Train and save a classifier to a pickle file
 3: Can classify multiple comments objects (from a list) and deduct an overall
    classification of the video
-
 The comments object, is the comments from the youtube video which want to be
 classified.
 """
@@ -24,32 +22,6 @@ import models
 from nltk.corpus import stopwords
 CUSTOM_STOP_WORDS = ['band', 'they', 'them']
 
-def create_word_list(text_words_tuples):
-    """
-    Creates a big set with ALL of the words from the corpus
-    :param text_words_tuples: Tuple with all text and their sentiments
-    :return words_list: The big set with all the words
-    """
-    words_list = set()
-    for (words, _) in text_words_tuples:
-        for word in words:
-            words_list.add(word.lower())
-    return words_list
-
-def create_tagged_text(tuples):
-    """
-    Creates a list of tuples containing word of the text (as a list) and
-    its sentiment
-    :param tuples: Tuples with text (as strings) and its sentiment
-    :return tuples_text: The list of tuples
-    """
-    tuple_text = []
-    stop = stopwords.words('english')
-    for (text, sentiment) in tuples:
-        words = text.split()
-        clean_word = [i.lower() for i in words if i.lower() not in stop]
-        tuple_text.append((clean_word, sentiment))
-    return tuple_text
 
 class SentimentAnalysis:
     """
@@ -75,19 +47,53 @@ class SentimentAnalysis:
         :return: pt and nt: Respectively positive and negative tuple
                             (text, sentiment)
         """
+        pt = []
+        nt = []
         self.logger.debug("Loading corpus file")
-        file_path = os.path.join(os.path.dirname(__file__), file_name)
         try:
+            file_path = os.path.join(os.path.dirname(__file__), file_name)
             with open(file_path, 'r') as read_file:
-                lines = read_file.readlines()[1:]
+                header = read_file.readline()
+                for line in read_file:
+                    line = line.split(split)
+                    if int(line[0]) == 1:
+                        pt.append((line[1], "positive"))
+                    else:
+                        nt.append((line[1].strip(), "negative"))
+            return pt, nt
         except(FileExistsError, LookupError):
             self.logger.error("I/O error: corpus file not found")
-            raise
-        else:
-            sentiment_dict = {0: "negative", 1: "positive"}
-            return [(sentiment_dict[int(line.split(split)[0])],
-                     line.split(split)[1])
-                     for line in lines]
+
+    @staticmethod
+    def create_word_list(text_words_tuples):
+        """
+        Creates a big set with ALL of the words from the corpus
+        :param text_words_tuples: Tuple with all text and their sentiments
+        :return words_list: The big set with all the words
+        """
+        words_list = set()
+        for (words, _) in text_words_tuples:
+            for word in words:
+                words_list.add(word.lower())
+        return words_list
+
+    @staticmethod
+    def create_tagged_text(tuples):
+        """
+        Creates a list of tuples containing word of the text (as a list) and
+        its sentiment
+        :param tuples: Tuples with text (as strings) and its sentiment
+        :return tuples_text: The list of tuples
+        """
+        tuple_text = []
+        stop = stopwords.words('english')
+        for (text, sentiment) in tuples:
+            #clean_word = []
+            words = text.split()
+            clean_word = ([i.lower() for i in words
+                               if not i.lower() in stop])
+            tuple_text.append((clean_word, sentiment))
+        return tuple_text
 
     def _word_feats_extractor(self, doc):
         """
@@ -102,10 +108,24 @@ class SentimentAnalysis:
         return features
 
     def create_words_and_tuples(self, corpus_filename):
-        corpus = self.load_corpus(corpus_filename, ";")
-        text_words_tuples = create_tagged_text(corpus)
-        word_list = create_word_list(text_words_tuples)
-        return text_words_tuples, word_list
+        pos_text, neg_text = self.load_corpus(corpus_filename, ";")
+        self.logger.debug("Creating words tuples...")
+        pos_text_words_tuples = self.create_tagged_text(pos_text)
+        neg_text_words_tuples = self.create_tagged_text(neg_text)
+
+        word_list_temp = self.create_word_list(pos_text_words_tuples)
+        print("Train 2")
+        self.logger.debug("Creating word_list with negative words "
+                          "and combine them with positive words...")
+        word_list = word_list_temp.union(self.create_word_list(
+            neg_text_words_tuples))
+
+        self.logger.debug("Combining the two tuples "
+                          "(positive and negative text)...")
+        tagged_text = pos_text_words_tuples + neg_text_words_tuples
+        self.logger.debug("Deleting the two original tuples")
+        del pos_text_words_tuples, neg_text_words_tuples
+        return tagged_text, word_list
 
     def _train(self, corpus_filename):
         """
@@ -115,8 +135,10 @@ class SentimentAnalysis:
         - create_word_list
         - word_feats_extractor
         """
+        print("Train")
         tagged_text, _ = self.create_words_and_tuples(corpus_filename)
 
+        print("Train 3")
         self.logger.debug("Making training set (apply features)...")
 
         training_set = nltk.classify.apply_features(
@@ -167,11 +189,12 @@ class SentimentAnalysis:
                                                 n_pos=0, n_neg=0, result="")
 
         self.logger.info(
-            "There is a change in number of comments. We do sentiment analysis")
+            "Their is a change in comments. We do sentiment analysis")
         comments_sentiment = []
         for comment in comments:
             res = self.classifier.classify(self._word_feats_extractor(
                 comment.content.split()))
+
             if res == "pos":
                 video_sentiment.n_pos += 1
                 comments_sentiment.append(models.CommentSentiment(
@@ -200,7 +223,8 @@ class SentimentAnalysis:
                          video_sentiment.result)
         return video_sentiment, comments_sentiment
 
-    def _eval(self, video_sentiment):
+    @staticmethod
+    def _eval(video_sentiment):
         """
         Taking a decision of the whole youtube-video based on the ratio
         between positive and negative comments
