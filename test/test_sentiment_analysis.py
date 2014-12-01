@@ -80,13 +80,6 @@ class SentimentAnalysisTestCase(TestCase):
                                            "strong positive",
                                            "strong positive"]
 
-    def test_training(self):
-        """ test the train method in sentiment_analysis. """
-        sa = sentiment_analysis.SentimentAnalysis("data/classifier.pickle")
-        sa._train()
-        sa.load_classifier()
-        assert sa.classifier is not None
-
     @mock.patch("nltk.data.load")
     @mock.patch("sentiment_analysis.SentimentAnalysis._train")
     @mock.patch("logging.Logger")

@@ -24,6 +24,34 @@ import models
 from nltk.corpus import stopwords
 CUSTOM_STOP_WORDS = ['band', 'they', 'them']
 
+def create_word_list(text_words_tuples):
+    """
+    Creates a big set with ALL of the words from the corpus
+    :param text_words_tuples: Tuple with all text and their sentiments
+    :return words_list: The big set with all the words
+    """
+    words_list = set()
+    for (words, _) in text_words_tuples:
+        for word in words:
+            words_list.add(word.lower())
+    return words_list
+
+def create_tagged_text(tuples):
+    """
+    Creates a list of tuples containing word of the text (as a list) and
+    its sentiment
+    :param tuples: Tuples with text (as strings) and its sentiment
+    :return tuples_text: The list of tuples
+    """
+    tuple_text = []
+    stop = stopwords.words('english')
+    for (text, sentiment) in tuples:
+        clean_word = []
+        words = text.split()
+        clean_word.extend([i.lower() for i in words
+                           if i.lower() not in stop])
+        tuple_text.append((clean_word, sentiment))
+    return tuple_text
 
 class SentimentAnalysis:
     """
@@ -66,36 +94,6 @@ class SentimentAnalysis:
         except(FileExistsError, LookupError):
             self.logger.error("I/O error: corpus file not found")
 
-    @staticmethod
-    def create_word_list(text_words_tuples):
-        """
-        Creates a big set with ALL of the words from the corpus
-        :param text_words_tuples: Tuple with all text and their sentiments
-        :return words_list: The big set with all the words
-        """
-        words_list = set()
-        for (words, _) in text_words_tuples:
-            for word in words:
-                words_list.add(word.lower())
-        return words_list
-
-    @staticmethod
-    def create_tagged_text(tuples):
-        """
-        Creates a list of tuples containing word of the text (as a list) and
-        its sentiment
-        :param tuples: Tuples with text (as strings) and its sentiment
-        :return tuples_text: The list of tuples
-        """
-        tuple_text = []
-        for (text, sentiment) in tuples:
-            clean_word = []
-            words = text.split()
-            clean_word.extend([i.lower() for i in words
-                               if not i.lower() in stopwords.words('english')])
-            tuple_text.append((clean_word, sentiment))
-        return tuple_text
-
     def _word_feats_extractor(self, doc):
         """
         Extract features from corpus
@@ -111,14 +109,14 @@ class SentimentAnalysis:
     def create_words_and_tuples(self, corpus_filename):
         pos_text, neg_text = self.load_corpus(corpus_filename, ";")
         self.logger.debug("Creating words tuples...")
-        pos_text_words_tuples = self.create_tagged_text(pos_text)
-        neg_text_words_tuples = self.create_tagged_text(neg_text)
+        pos_text_words_tuples = create_tagged_text(pos_text)
+        neg_text_words_tuples = create_tagged_text(neg_text)
 
-        word_list_temp = self.create_word_list(pos_text_words_tuples)
+        word_list_temp = create_word_list(pos_text_words_tuples)
         print("Train 2")
         self.logger.debug("Creating word_list with negative words "
                           "and combine them with positive words...")
-        word_list = word_list_temp.union(self.create_word_list(
+        word_list = word_list_temp.union(create_word_list(
             neg_text_words_tuples))
 
         self.logger.debug("Combining the two tuples "
@@ -224,8 +222,7 @@ class SentimentAnalysis:
                          video_sentiment.result)
         return video_sentiment, comments_sentiment
 
-    @staticmethod
-    def _eval(video_sentiment):
+    def _eval(self, video_sentiment):
         """
         Taking a decision of the whole youtube-video based on the ratio
         between positive and negative comments

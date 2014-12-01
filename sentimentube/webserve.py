@@ -193,6 +193,7 @@ def comment_sentiment_plot():
     if negative:
         axis.hist(negative, color=["r"], align="right", bins=[0, 1])
     axis.set_xlabel("positive        negative")
+    axis.set_xticks([])
     axis.set_title("comment sentiment distribution")
     axis.set_ylabel("number of comments")
     canvas = FigureCanvas(fig)
