@@ -188,12 +188,12 @@ class SentimentAnalysis:
                                                 n_pos=0, n_neg=0, result="")
 
         self.logger.info(
-            "Their is a change in comments. We do sentiment analysis")
+            "There is a change in number of comments. We do sentiment analysis")
         comments_sentiment = []
         for comment in comments:
             res = self.classifier.classify(self._word_feats_extractor(
                 comment.content.split()))
-
+            res = "pos"
             if res == "pos":
                 video_sentiment.n_pos += 1
                 comments_sentiment.append(models.CommentSentiment(

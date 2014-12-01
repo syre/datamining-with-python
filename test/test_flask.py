@@ -10,68 +10,65 @@ import sqlalchemy
 import models
 import datetime
 
+def insert_rows(video_ids=None, positive_list=None):
+    """ Helper function for inserting test rows in the database. """
+    if not video_ids:
+        video_ids = ["tkXr3uxM2fy"]
+    if not positive_list:
+        positive_list = [True]
+    now = datetime.datetime.now()
+    for video_index, v_id in enumerate(video_ids):
+        database.DB_SESSION.add(models.Video(id=v_id,
+                                             title="test title {}".
+                                             format(v_id),
+                                             author_id="test author {}"
+                                             .format(v_id),
+                                             viewcount=1,
+                                             duration=10,
+                                             likes=1,
+                                             published=now,
+                                             dislikes=1,
+                                             rating=3,
+                                             num_of_raters=5,
+                                             num_of_comments=5,
+                                             timestamp=now))
+        database.DB_SESSION.add(models.VideoSentiment(id=v_id,
+                                                      n_pos=5.2,
+                                                      n_neg=10.2,
+                                                      result="negative"))
+        for com_index, pos in enumerate(positive_list):
+            database.DB_SESSION.add(models.Comment(id="comment {} {}"
+                                                   .format(video_index,
+                                                           com_index),
+                                                   video_id=v_id,
+                                                   author_id="test author "
+                                                             "id {}"
+                                                   .format(v_id),
+                                                   author_name="test "
+                                                               "author "
+                                                               "name {}"
+                                                   .format(v_id),
+                                                   content="test comment"
+                                                           " text {}"
+                                                   .format(v_id),
+                                                   published=now))
+
+            database.DB_SESSION.add(
+                models.CommentSentiment(
+                    id="comment {} {}".format(video_index,
+                                              com_index),
+                    video_id=v_id, positive=pos))
+    database.DB_SESSION.commit()
 
 class WebServeTestCase(TestCase):
 
     """ Class to test webserve module. """
-
-    @staticmethod
-    def insert_rows(video_ids=None, positive_list=None):
-        """
-        Helper function for inserting test rows in the database.
-
-        made static because of it not using any object data
-        """
-        if not video_ids:
-            video_ids = ["tkXr3uxM2fy"]
-        if not positive_list:
-            positive_list = [True]
-
-        for video_index, v_id in enumerate(video_ids):
-            database.DB_SESSION.add(models.Video(id=v_id,
-                                                 title="test title {}".
-                                                 format(v_id),
-                                                 author_id="test author {}"
-                                                 .format(v_id),
-                                                 viewcount=1,
-                                                 duration=10,
-                                                 likes=1,
-                                                 published=datetime.datetime
-                                                 .now(),
-                                                 dislikes=1,
-                                                 rating=3,
-                                                 num_of_raters=5,
-                                                 num_of_comments=5,
-                                                 timestamp=datetime.datetime
-                                                 .now()))
-            database.DB_SESSION.add(models.VideoSentiment(id=v_id,
-                                                          n_pos=5.2,
-                                                          n_neg=10.2,
-                                                          result="negative"))
-            for com_index, pos in enumerate(positive_list):
-                database.DB_SESSION.add(models.Comment(id="comment {} {}"
-                                                       .format(video_index,
-                                                               com_index),
-                                                       video_id=v_id,
-                                                       author_id="test author "
-                                                                 "id {}"
-                                                       .format(v_id),
-                                                       author_name="test "
-                                                                   "author "
-                                                                   "name {}"
-                                                       .format(v_id),
-                                                       content="test comment"
-                                                               " text {}"
-                                                       .format(v_id),
-                                                       published=datetime
-                                                       .datetime.now()))
-
-                database.DB_SESSION.add(
-                    models.CommentSentiment(
-                        id="comment {} {}".format(video_index,
-                                                  com_index),
-                        video_id=v_id, positive=pos))
-        database.DB_SESSION.commit()
+    @classmethod
+    def setUpClass(self):
+      webserve.APP.config["TESTING"] = True
+      self.app = webserve.APP.test_client()
+      database.ENGINE = sqlalchemy.create_engine("sqlite://", echo=False)
+      database.init_db()
 
     def setUp(self):
         """
@@ -82,16 +79,14 @@ class WebServeTestCase(TestCase):
         for use as test database and
         sets flask up for testing
         """
-        webserve.APP.config["TESTING"] = True
-        self.app = webserve.APP.test_client()
-        database.ENGINE = sqlalchemy.create_engine("sqlite://", echo=False)
+
         database.DB_SESSION = \
             sqlalchemy.orm.scoped_session(sqlalchemy.orm
                                           .sessionmaker(
                                               autocommit=False,
                                               autoflush=False,
                                               bind=database.ENGINE))
-        database.init_db()
+
 
     def tearDown(self):
         """
@@ -100,6 +95,8 @@ class WebServeTestCase(TestCase):
         tear down method, running after
         each test, closes the session
         """
+        for tbl in reversed(database.BASE.metadata.sorted_tables):
+            database.ENGINE.execute(tbl.delete())
         database.DB_SESSION.close()
 
     def test_start_page_load_correct(self):
@@ -118,7 +115,7 @@ class WebServeTestCase(TestCase):
         asserts on text on video analysis page
         """
         v_id = "tkXr3uxM2fY"
-        WebServeTestCase.insert_rows([v_id])
+        insert_rows([v_id])
         response = self.app.get("/video?video_id={}".format(v_id))
         assert "Analysis of video with ID: {}".format(v_id) in \
                response.data.decode("utf-8")
@@ -210,7 +207,7 @@ class WebServeTestCase(TestCase):
             models.VideoSentiment).filter_by(id=v_id).first()
         assert sentiment.n_neg != negative_score
         assert sentiment.n_pos != positive_score
-        assert sentiment.result == "neutral"
+        assert sentiment.result != "test positive"
 
     def test_video_page_saves_comment_in_db(self):
         """
@@ -255,7 +252,7 @@ class WebServeTestCase(TestCase):
         tests with only negative comment sentiments
         """
         v_id = "tkXr3uxM2fY"
-        WebServeTestCase.insert_rows([v_id], positive_list=[False])
+        insert_rows([v_id], positive_list=[False])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}"
                                 .format(v_id))
         assert response.status_code == 200
@@ -267,7 +264,7 @@ class WebServeTestCase(TestCase):
         tests with only positive comment sentiments
         """
         v_id = "tkXr3uxM2fY"
-        WebServeTestCase.insert_rows([v_id], positive_list=[True])
+        insert_rows([v_id], positive_list=[True])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}"
                                 .format(v_id))
         assert response.status_code == 200
@@ -279,7 +276,7 @@ class WebServeTestCase(TestCase):
         with mixed comment sentiments (positive and negative)
         """
         v_id = "tkXr3uxM2fY"
-        WebServeTestCase.insert_rows([v_id], positive_list=[True, False])
+        insert_rows([v_id], positive_list=[True, False])
         response = self.app.get("/comment_sentiment_plot.png?video_id={}"
                                 .format(v_id))
         assert response.status_code == 200
@@ -291,7 +288,7 @@ class WebServeTestCase(TestCase):
         asserts on HTTP status = 200
         """
         v_id = "tkXr3uxM2fY"
-        WebServeTestCase.insert_rows([v_id], [True, False])
+        insert_rows([v_id], [True, False])
         response = self.app.get("/video_sentiment_plot.png?video_id={}"
                                 .format(v_id))
         assert response.status_code == 200
@@ -307,7 +304,7 @@ class WebServeTestCase(TestCase):
                  "Ek_cufWYvjE", "zNJJBD_I5EU",
                  "v2zTVZFlCZ0", "ZLa6sX9N3Jw",
                  "c6qOBFkvdG0", "eYhHyUU-CYU"]
-        WebServeTestCase.insert_rows(v_ids)
+        insert_rows(v_ids)
 
         response = self.app.get("/previous")
         for v_id in v_ids[5:]:
