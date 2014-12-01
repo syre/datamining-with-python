@@ -15,6 +15,8 @@ import unittest
 import os
 import subprocess
 
+CWD = os.path.dirname(__file__)
+
 class TestCodeFormat(unittest.TestCase):
 
     """    Creating, listing and running tests. """
