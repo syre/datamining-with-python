@@ -15,25 +15,6 @@ import unittest
 import os
 import subprocess
 
-
-SOURCE_LIST = ["youtube.py",
-               "webserve.py",
-               "sentiment_analysis.py",
-               "models.py",
-               "database.py"]
-
-TEST_LIST = ["test_flask.py",
-             "test_codeformat.py",
-             "test_sentiment_analysis.py",
-             "test_youtube.py"]
-
-CWD = os.path.dirname(__file__)
-SOURCE_PATHS = [os.path.join(CWD, os.pardir, "sentimentube", pyfile)
-                for pyfile in SOURCE_LIST]
-TEST_PATHS = [os.path.join(CWD, pyfile) for pyfile in TEST_LIST]
-FULL_PATHS = SOURCE_PATHS+TEST_PATHS
-
-
 class TestCodeFormat(unittest.TestCase):
 
     """    Creating, listing and running tests. """
