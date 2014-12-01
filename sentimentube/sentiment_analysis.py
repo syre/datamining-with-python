@@ -46,10 +46,8 @@ def create_tagged_text(tuples):
     tuple_text = []
     stop = stopwords.words('english')
     for (text, sentiment) in tuples:
-        clean_word = []
         words = text.split()
-        clean_word.extend([i.lower() for i in words
-                           if i.lower() not in stop])
+        clean_word = [i.lower() for i in words if i.lower() not in stop]
         tuple_text.append((clean_word, sentiment))
     return tuple_text
 
@@ -77,22 +75,19 @@ class SentimentAnalysis:
         :return: pt and nt: Respectively positive and negative tuple
                             (text, sentiment)
         """
-        pt = []
-        nt = []
         self.logger.debug("Loading corpus file")
+        file_path = os.path.join(os.path.dirname(__file__), file_name)
         try:
-            file_path = os.path.join(os.path.dirname(__file__), file_name)
             with open(file_path, 'r') as read_file:
-                header = read_file.readline()
-                for line in read_file:
-                    line = line.split(split)
-                    if int(line[0]) == 1:
-                        pt.append((line[1], "positive"))
-                    else:
-                        nt.append((line[1].strip(), "negative"))
-            return pt, nt
+                lines = read_file.readlines()[1:]
         except(FileExistsError, LookupError):
             self.logger.error("I/O error: corpus file not found")
+            raise
+        else:
+            sentiment_dict = {0: "negative", 1: "positive"}
+            return [(sentiment_dict[int(line.split(split)[0])],
+                     line.split(split)[1])
+                     for line in lines]
 
     def _word_feats_extractor(self, doc):
         """
@@ -107,24 +102,10 @@ class SentimentAnalysis:
         return features
 
     def create_words_and_tuples(self, corpus_filename):
-        pos_text, neg_text = self.load_corpus(corpus_filename, ";")
-        self.logger.debug("Creating words tuples...")
-        pos_text_words_tuples = create_tagged_text(pos_text)
-        neg_text_words_tuples = create_tagged_text(neg_text)
-
-        word_list_temp = create_word_list(pos_text_words_tuples)
-        print("Train 2")
-        self.logger.debug("Creating word_list with negative words "
-                          "and combine them with positive words...")
-        word_list = word_list_temp.union(create_word_list(
-            neg_text_words_tuples))
-
-        self.logger.debug("Combining the two tuples "
-                          "(positive and negative text)...")
-        tagged_text = pos_text_words_tuples + neg_text_words_tuples
-        self.logger.debug("Deleting the two original tuples")
-        del pos_text_words_tuples, neg_text_words_tuples
-        return tagged_text, word_list
+        corpus = self.load_corpus(corpus_filename, ";")
+        text_words_tuples = create_tagged_text(corpus)
+        word_list = create_word_list(text_words_tuples)
+        return text_words_tuples, word_list
 
     def _train(self, corpus_filename):
         """
@@ -134,10 +115,8 @@ class SentimentAnalysis:
         - create_word_list
         - word_feats_extractor
         """
-        print("Train")
         tagged_text, _ = self.create_words_and_tuples(corpus_filename)
 
-        print("Train 3")
         self.logger.debug("Making training set (apply features)...")
 
         training_set = nltk.classify.apply_features(
@@ -193,7 +172,6 @@ class SentimentAnalysis:
         for comment in comments:
             res = self.classifier.classify(self._word_feats_extractor(
                 comment.content.split()))
-            res = "pos"
             if res == "pos":
                 video_sentiment.n_pos += 1
                 comments_sentiment.append(models.CommentSentiment(
