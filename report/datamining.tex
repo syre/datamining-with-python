@@ -45,17 +45,19 @@ We also used Javascript and SASS \cite{sass},  to a lesser degree for the fronte
 
 While developing we have used the built-in flask web server for ease of use, for deployment however, a traditional web server like Apache with mod\_fastcgi would probably be the better option for its performance and security.
 
+The results presented in the webservice after analysis is the negative and positive score, as well as a histogram of postive and negative comments and a scatter plot of the video in comparison to other videos that has been analysed.
+
 \subsection{Sentiment analyser}
-The sentiment analyser is based on the NLTK package \cite{nltk}. We train a Naive Bayes classifier and saves the classifier as a pickle file, so we next time don't  have to train, but simply load the classifier into NLTK. \\
+The sentiment analyser is based on the NLTK package \cite{nltk}. We train a Naive Bayes classifier and save the classifier as a pickle file, so we next time don't  have to train, but can simply load the classifier into NLTK. \\
 The classifier is trained based on a combined corpus of tweets from Twitter \cite{twitter} and movie reviews \cite{movie_corpus}. \\
 
-The corpus has been pre-prossesed so there is equal number of positive and negative texts - 13333 each. The hashtags and user-specified tags ('@'-tag) has also been removed from the twitter corpus. Reversed, there has been added a few emoticons like ':D' and ':(' (positive and negative respectively).\\
+The corpus has been pre-proccesed so there is an equal number of positive and negative texts - 13333 each. The hashtags and user-specified tags ('@'-tag) has also been removed from the twitter corpus. Reversed, there has been added a few emoticons like ':D' and ':(' (positive and negative).\\
 
 The sentiment analysis itself, is done by a method which takes the comments as input and do sentiment analysis on all of them. Then it's finding a overall classification of the video by making a majority vote of the comments sentiment. The classification can be one of five possibillities: Strong negative, slight negative, neutral, slight positive or strong positive.
 
 
 \subsection{YouTube scraper}
-The YouTube scraper uses the Google Data API's for fetching data from youtube and requests as the library making the HTTP requests. We realize a python gdata module already exists, 
+The YouTube scraper uses the Google Data API's for fetching data from youtube and requests as the library making the HTTP requests.
 
 \subsection{General}
 The project runs Python 3 and have not been tested on Python 2,
@@ -115,7 +117,7 @@ As our sentiment corpus consists of words in english, the sentiment analysis wil
 As the webservice makes use of the Google Data APIs it has to make several HTTP GET requests for fetching comments, right now 1 request for every 25 comments, this serves as a bottleneck for analysing YouTube videos with large amounts of comments. Because of this bottleneck it results in a delay for the user the first time a new video is analysed, however subsequent requests on the particular video will fetch the information from the database eliminating the delay. The database fetch happens only if the number of comments for the video are unchanged from the last analysis. Further work could be spent looking into optimizing the HTTP requests made for example by parallelization of the requests. The classification also take up a considerable amount of time and further time could be spent optimizing this as well. Profiling the project could be done using the cProfile module\cite{cprofile}.\\
 
 As mentioned earlier, the training of the classifier is taking too long. As we saves the classifier, so we next time just can load it, it's something we can live with.  \\ 
-By reducing the corpus, we can cut down the training time. But this will affect the accuracy of the classifier. So it's a trade-off issue. As we don't know exactly how much the trade-off is and how much of the corpus we can cut-off before the accuracy of the classifier is decreasing too much, this is an area to look into the next step to go for optimizing the sentiment analysis. 
+By reducing the corpus, we can cut down the training time. But this will affect the accuracy of the classifier. So it's a trade-off issue. As we don't know exactly how much the trade-off is and how much of the corpus we can cut-off before the accuracy of the classifier is decreasing too much, this is an area to look into the next step to go for optimizing the sentiment analysis.
 
 \section{Conclusion}
 We have implemented a YouTube sentiment web service mining YouTube comments and performing sentiment analysis. \\
