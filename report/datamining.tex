@@ -146,13 +146,11 @@ Due to the nature of the service and restrictions in the Google Data APIs it wor
 {ï}{{\"i}}1
 {ø}{{\"o}}1}
 \lstlistoflistings
-
 \label{listing:youtube}\lstinputlisting{../sentimentube/youtube.py}
 \label{listing:sentiment_analysis}\lstinputlisting{../sentimentube/sentiment_analysis.py}
 \label{listing:webserve}\lstinputlisting{../sentimentube/webserve.py}
 \label{listing:models}\lstinputlisting{../sentimentube/models.py}
 \label{listing:database}\lstinputlisting{../sentimentube/database.py}
-
 \label{listing:test_flask}\lstinputlisting{../test/test_flask.py}
 \label{listing:test_youtube}\lstinputlisting{../test/test_youtube.py}
 \label{listing:test_sentiment_analysis}\lstinputlisting{../test/test_sentiment_analysis.py}
@@ -161,10 +159,6 @@ Due to the nature of the service and restrictions in the Google Data APIs it wor
 \newpage
 \section{Automatic generation of documentation}
 
-Demontration using epydoc:
-\begin{verbatim}
-epydoc --pdf -o /home/fnielsen/tmp/epydoc/ --name RBBase wikipedia/api.py
-\end{verbatim}
 Test output (nosetests): 
 \begin{verbatim}
 nose.config: INFO: Ignoring files matching ['^\\.', '^_', '^setup\\.py$']
@@ -217,6 +211,6 @@ Ran 32 tests in 93.541s
 OK
 
 \end{verbatim}
-%\includepdf[pages={-}]{/home/fnielsen/tmp/epydoc/api.pdf}
-
+Epydoc documentation:
+\includepdf[pages={-}]{sentimentube_epydoc.pdf}
 \end{document}
