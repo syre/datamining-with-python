@@ -61,9 +61,9 @@ class SentimentAnalysis:
         """ Call the load method to load the classifier from file. """
         corpus_path = "data/corpus.txt"
         self.logger = logging.getLogger(__name__)
+        _, self.word_list = self.create_words_and_tuples(corpus_path)
         self.file_path = os.path.join(os.path.dirname(__file__), file_name)
         self.classifier = self.load_classifier(corpus_path)
-        _, self.word_list = self.create_words_and_tuples(corpus_path)
 
     def load_corpus(self, file_name, split=","):
         """
