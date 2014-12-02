@@ -1,5 +1,5 @@
 # Fdb version 3
-["bibtex datamining"] 1417545731 "datamining.aux" "datamining.bbl" "datamining" 1417545808
+["bibtex datamining"] 1417545731 "datamining.aux" "datamining.bbl" "datamining" 1417546454
   "./IEEEtran.bst" 1417543097 59506 016987d9be15acf51cdd7252d40ecec2 ""
   "datamining.aux" 1417545807 5508 ba7773ab840d03c7384518f8dcf69151 ""
   "datamining.bcf" 0 -1 0 ""
@@ -82,13 +82,13 @@
   "video.png" 1417537636 134357 640410ac73d9440291a45c6417ea8247 ""
   "youtube.py" 1417541813 7271 ccaca1a6aeae15f1729023729613a31b ""
   (generated)
-  "datamining.log"
   "datamining.aux"
-  "datamining.lol"
-  "datamining.dvi"
   "datamining.out"
+  "datamining.log"
   "datamining.pdf"
-["pdflatex"] 1417545806 "datamining.tex" "datamining.pdf" "datamining" 1417545808
+  "datamining.dvi"
+  "datamining.lol"
+["pdflatex"] 1417545806 "datamining.tex" "datamining.pdf" "datamining" 1417546454
   "../sentimentube/database.py" 1417516999 647 1eb1e30a72b280162b3aee45b5646b22 ""
   "../sentimentube/models.py" 1417354935 4481 311ad1e6bf2646095b3b1994775b6b23 ""
   "../sentimentube/sentiment_analysis.py" 1417544767 8834 939fff28ca86554af84e3c546ead9cf9 ""
@@ -158,8 +158,8 @@
   "sentimentube_epydoc.pdf" 1417545796 179380 6a7373e3fd57e2c6a307820ee85bf4d6 ""
   "video.png" 1417537636 134357 640410ac73d9440291a45c6417ea8247 ""
   (generated)
-  "datamining.log"
-  "datamining.aux"
   "datamining.lol"
+  "datamining.log"
   "datamining.pdf"
+  "datamining.aux"
   "datamining.out"
