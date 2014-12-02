@@ -51,11 +51,11 @@ The classifier is trained based on a combined corpus of tweets from Twitter \cit
 
 The corpus has been pre-prossesed so there is equal number of positive and negative texts - 13333 each. The hashtags and user-specified tags ('@'-tag) has also been removed from the twitter corpus. Reversed, there has been added a few emoticons like ':D' and ':(' (positive and negative respectively).\\
 
-The sentiment analysis itself, is done by a method which takes the comments as input and do sentiment analysis on all of them. Then it's finding a overall classification of the video by making a majority vote of the comments sentiment. The classification can be one of five possibillities: Strong negative, slight negative, neutral, slight positive or strong positive.
+The sentiment analysis itself, is done by a method which takes the comments as input and do sentiment analysis on all of them. Then it's finding an overall classification of the video by making a majority vote of the comments sentiment. The classification can be one of five possibillities: Strong negative, slight negative, neutral, slight positive or strong positive.
 
 
 \subsection{YouTube scraper}
-The YouTube scraper uses the Google Data API's for fetching data from youtube and requests as the library making the HTTP requests. We realize a python gdata module already exists, 
+The YouTube scraper uses the Google Data API's for fetching data from youtube and requests as the library making the HTTP requests. We realize a python gdata module already exists.
 
 \subsection{General}
 The project runs Python 3 and have not been tested on Python 2,
