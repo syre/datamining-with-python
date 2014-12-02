@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex datamining"] 1417544804 "datamining.aux" "datamining.bbl" "datamining" 1417544926
+["bibtex datamining"] 1417545731 "datamining.aux" "datamining.bbl" "datamining" 1417545808
   "./IEEEtran.bst" 1417543097 59506 016987d9be15acf51cdd7252d40ecec2 ""
-  "datamining.aux" 1417544926 5508 ba7773ab840d03c7384518f8dcf69151 ""
+  "datamining.aux" 1417545807 5508 ba7773ab840d03c7384518f8dcf69151 ""
   "datamining.bcf" 0 -1 0 ""
   "references.bib" 1417537636 1568 0081f6aebc001ff7c9c578f594048445 ""
   (generated)
-  "datamining.blg"
   "datamining.bbl"
+  "datamining.blg"
 ["latex"] 1417542066 "datamining.tex" "datamining.dvi" "datamining" 1417542070
   "/etc/texmf/web2c/texmf.cnf" 1415498272 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
@@ -83,12 +83,12 @@
   "youtube.py" 1417541813 7271 ccaca1a6aeae15f1729023729613a31b ""
   (generated)
   "datamining.log"
-  "datamining.pdf"
+  "datamining.aux"
+  "datamining.lol"
   "datamining.dvi"
   "datamining.out"
-  "datamining.lol"
-  "datamining.aux"
-["pdflatex"] 1417544925 "datamining.tex" "datamining.pdf" "datamining" 1417544926
+  "datamining.pdf"
+["pdflatex"] 1417545806 "datamining.tex" "datamining.pdf" "datamining" 1417545808
   "../sentimentube/database.py" 1417516999 647 1eb1e30a72b280162b3aee45b5646b22 ""
   "../sentimentube/models.py" 1417354935 4481 311ad1e6bf2646095b3b1994775b6b23 ""
   "../sentimentube/sentiment_analysis.py" 1417544767 8834 939fff28ca86554af84e3c546ead9cf9 ""
@@ -150,15 +150,16 @@
   "/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty" 1169481954 55224 a43bab84e0ac5e6efcaf9a98bde73a94 ""
   "IEEEtran.cls" 1417541143 276163 5b8c27844c9c11d4ad81e78fc081963e ""
   "database.png" 1417537636 74416 ea9d06895f9a4a33402135bff84557da ""
-  "datamining.aux" 1417544926 5508 ba7773ab840d03c7384518f8dcf69151 ""
-  "datamining.bbl" 1417544804 3030 d090a44b9d96fd7e31c36ab5659a2f3b "bibtex datamining"
-  "datamining.lol" 1417544926 765 e2fbdfd9424436362e28cd427c4ae057 ""
-  "datamining.out" 1417544926 909 afe18014bbbba6394f162513aa6fe416 ""
-  "datamining.tex" 1417544924 12159 c182d619b61077c7781a25a29641537d ""
+  "datamining.aux" 1417545807 5508 ba7773ab840d03c7384518f8dcf69151 ""
+  "datamining.bbl" 1417545731 3030 d090a44b9d96fd7e31c36ab5659a2f3b "bibtex datamining"
+  "datamining.lol" 1417545807 765 e2fbdfd9424436362e28cd427c4ae057 ""
+  "datamining.out" 1417545807 909 afe18014bbbba6394f162513aa6fe416 ""
+  "datamining.tex" 1417545806 12034 18169d37c580e2964a181c6f1786b38c ""
+  "sentimentube_epydoc.pdf" 1417545796 179380 6a7373e3fd57e2c6a307820ee85bf4d6 ""
   "video.png" 1417537636 134357 640410ac73d9440291a45c6417ea8247 ""
   (generated)
   "datamining.log"
-  "datamining.pdf"
-  "datamining.lol"
   "datamining.aux"
+  "datamining.lol"
+  "datamining.pdf"
   "datamining.out"
