@@ -301,7 +301,6 @@ class WebServeTestCase(TestCase):
         insert_rows(v_ids)
 
         response = self.app.get("/previous")
-        print(response.data.decode("utf-8"))
         for v_id in v_ids[5:]:
             assert v_id in response.data.decode("utf-8")
 
