@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# pylint: disable-msg=R0201
+# pylint: disable=R0201
 """ This module scrapes/download contents from a youtube video. """
 import requests
 import dateutil.parser
