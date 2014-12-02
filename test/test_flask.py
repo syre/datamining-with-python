@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# pylint: disable=R0904
 
 """ Module for integration testing the webserve module. """
 
@@ -10,14 +11,15 @@ import sqlalchemy
 import models
 import datetime
 
+
 def insert_rows(video_ids=None, positive_list=None):
     """ Helper function for inserting test rows in the database. """
     if not video_ids:
         video_ids = ["tkXr3uxM2fy"]
     if not positive_list:
         positive_list = [True]
-    now = datetime.datetime.now()
     for video_index, v_id in enumerate(video_ids):
+        now = datetime.datetime.now()
         database.DB_SESSION.add(models.Video(id=v_id,
                                              title="test title {}".
                                              format(v_id),
@@ -59,6 +61,7 @@ def insert_rows(video_ids=None, positive_list=None):
                                               com_index),
                     video_id=v_id, positive=pos))
     database.DB_SESSION.commit()
+
 
 class WebServeTestCase(TestCase):
 
@@ -298,6 +301,7 @@ class WebServeTestCase(TestCase):
         insert_rows(v_ids)
 
         response = self.app.get("/previous")
+        print(response.data.decode("utf-8"))
         for v_id in v_ids[5:]:
             assert v_id in response.data.decode("utf-8")
 

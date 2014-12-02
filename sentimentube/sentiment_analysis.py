@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+# pylint: disable-msg=R0201
 """
 Module for sentiment analysis.
+
 This module has 3 purposes:
 1: Can load an existing classifier from a pickle file
 2: Train and save a classifier to a pickle file
@@ -13,8 +14,6 @@ classified.
 """
 
 import nltk.classify.util
-from nltk.classify import NaiveBayesClassifier
-from nltk.corpus import movie_reviews
 import pickle
 import os
 import logging
@@ -22,9 +21,11 @@ import models
 from nltk.corpus import stopwords
 CUSTOM_STOP_WORDS = ['band', 'they', 'them']
 
+
 def create_word_list(text_words_tuples):
     """
-    Creates a big set with ALL of the words from the corpus
+    Create a big set with ALL of the words from the corpus.
+
     :param text_words_tuples: Tuple with all text and their sentiments
     :return words_list: The big set with all the words
     """
@@ -34,10 +35,11 @@ def create_word_list(text_words_tuples):
             words_list.add(word.lower())
     return words_list
 
+
 def create_tagged_text(tuples):
     """
-    Creates a list of tuples containing word of the text (as a list) and
-    its sentiment
+    Create a list of tuples containing words of the text and its sentiment.
+
     :param tuples: Tuples with text (as strings) and its sentiment
     :return tuples_text: The list of tuples
     """
@@ -46,19 +48,17 @@ def create_tagged_text(tuples):
     for (text, sentiment) in tuples:
         words = text.split()
         clean_word = ([i.lower() for i in words
-                           if not i.lower() in stop])
+                       if not i.lower() in stop])
         tuple_text.append((clean_word, sentiment))
     return tuple_text
 
+
 class SentimentAnalysis:
-    """
-    Class for making sentiment analysis of video comments
-    """
+
+    """ Class for making sentiment analysis of video comments. """
 
     def __init__(self, file_name):
-        """
-        Call the load method to load the classifier from file.
-        """
+        """ Call the load method to load the classifier from file. """
         corpus_path = "data/corpus.txt"
         self.logger = logging.getLogger(__name__)
         self.file_path = os.path.join(os.path.dirname(__file__), file_name)
@@ -67,7 +67,8 @@ class SentimentAnalysis:
 
     def load_corpus(self, file_name, split=","):
         """
-        Loads corpus from file and stores it in a tuple
+        Load corpus from file and stores it in a tuple.
+
         :param file_name: Name of the corpus file
         :param split: How to split a line in the corpus (text vs. sentiment).
                       Default split: ','
@@ -90,14 +91,24 @@ class SentimentAnalysis:
 
     def _word_feats_extractor(self, doc):
         """
-        Extract features from corpus
+        Extract features from corpus.
+
         :param words: List of words from corpus
         :return: Dict of the words as keys and True/False as values
         """
         doc_words = set(doc)
-        return dict([("contains({})".format(i), i in doc_words) for i in self.word_list])
+        return dict([("contains({})".format(i), i in doc_words)
+                     for i in self.word_list])
 
     def create_words_and_tuples(self, corpus_filename):
+        """
+        load corpus and create tagged text and word_list.
+
+        tagged text is the words of the text and their sentiment,
+        word_list is the words in the corpus
+
+        :param corpus_filename: the filepath of the corpus
+        """
         text = self.load_corpus(corpus_filename, ";")
         tagged_text = create_tagged_text(text)
         word_list = create_word_list(tagged_text)
@@ -105,6 +116,8 @@ class SentimentAnalysis:
 
     def _train(self, corpus_filename):
         """
+        Train the classifier.
+
         Training the Naïve Bayes classifier, by calling the following methods:
         - load_corpus
         - create_tagged_text
@@ -124,7 +137,8 @@ class SentimentAnalysis:
 
     def _save_classifier(self, classifier):
         """
-        Saving the classifier to a pickle file
+        Save the classifier to a pickle file.
+
         :param classifier: The trained classifier
         """
         try:
@@ -137,7 +151,8 @@ class SentimentAnalysis:
 
     def load_classifier(self, corpus_path):
         """
-        Loading a trained classifier from file.
+        Load a trained classifier from file.
+
         If it fails, it's training a new
         """
         try:
@@ -152,7 +167,9 @@ class SentimentAnalysis:
 
     def classify_comments(self, comments):
         """
-        Classifying a youtube-videos comments, by classify each comments
+        Classify youtube-videos comments.
+
+        performs classification on each comment
         and let the method 'eval' make a decision
         It normalize the ratio between number of positive and negative comments
         before calling the 'eval' method
@@ -197,10 +214,12 @@ class SentimentAnalysis:
                          video_sentiment.result)
         return video_sentiment, comments_sentiment
 
-    def _eval(video_sentiment):
+    def _eval(self, video_sentiment):
         """
-        Taking a decision of the whole youtube-video based on the ratio
-        between positive and negative comments
+        evaluate the overall sentiment of the youtube video.
+
+        Taking a decision of the sentiment of the youtube-video
+        based on the ratio between positive and negative comments
         It takes a decision like so, based on number positive comments (nPos):
             -   nPos <0.25:     Strong negative
             -   nPos >= 0.25 and nPos < 0.4:    Slight negative
